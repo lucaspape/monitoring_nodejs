@@ -120,14 +120,12 @@ var transporter = nodemailer.createTransport(config.mail);
 
 function send_email(notify, host, command, type, state, message, timestamps){
   var timestampText = 'First occurred: ' + timeConverter(timestamps.firstOccurring) + '\n Last occurred: ' + timeConverter(timestamps.lastOccurring);
-  var subject = '';
+  var subject = '[' + type + '] ' + state + ' while checking command ' + command.name;
   var text = '';
 
   if(message){
-    subject = '[' + type + '] ' + state + ' while checking command ' + command.name;
     text = command.name + ' returned ' + state + ' on ' + host.name + '\n \n' + message + '\n' + timestampText;
   }else{
-    subject = '[' + type + '] Command ' + command.name + ' is OK '
     text = command.name + ' is now ' + state + ' on ' + host.name + '\n' + timestampText;
   }
 
