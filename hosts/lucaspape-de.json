@@ -22,7 +22,7 @@
          }
       },
       {
-         "name":"check_updates",
+         "name":"check_updates_yay",
          "notify":"email",
          "notify_vars":{
             "email":"admin@lucaspape.de"

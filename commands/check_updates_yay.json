@@ -2,7 +2,7 @@
    "name":"check_updates",
    "required_vars":[
    ],
-   "command":"yay -Qu | tee /tmp/aurupdates | wc -l",
+   "command":"yay -Qu | tee /tmp/updates | wc -l",
    "failure_on": "out_larger_than_value",
    "failure_value": 0
 }
