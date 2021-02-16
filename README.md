@@ -4,6 +4,16 @@ I didnt want to configure icinga2 because it looked like shit, it was faster to 
 
 There are hosts and commands to configure, the hosts will use the commands to check your services.
 
+# how to install
+
+clone this repo  
+
+run ```ǹpm install```
+
+# how to run
+
+run ```node src/index.js```  
+
 # commands
 ```
 {
