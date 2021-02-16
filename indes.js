@@ -160,6 +160,15 @@ function run_host_commands(host, commands, callback){
             }
 
             break;
+          case 'value_not_exact_out':
+            if(command.failure_value != stdout){
+              state = 'error';
+              error = stdout + ' is not failure value ' + command.failure_value;
+            }else{
+              state = 'ok';
+            }
+
+            break;
           default:
             if(error){
               state = 'error';
