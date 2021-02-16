@@ -44,7 +44,7 @@ You can change it like this:
 
 Now the command is considered failed when the output is larger than 500.  
 
-Available ```on_error``` methods:
+Available ```error_on``` methods:
 
 ```out_larger_than_value```       output is larger than value  
 ```out_smaller_than_value```      output is smaller than value  
@@ -63,7 +63,7 @@ You can do the same thing with warnings:
 }
 ```
   
-Available ```on_warning``` methods: same as ```on_error``` methods  
+Available ```warning_on``` methods: same as ```error_on``` methods  
 
 # hosts
 
