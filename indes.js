@@ -43,7 +43,7 @@ function send_notification(command_result){
   if(command_result.status !== 'ok'){
     switch(command_result.command.notify){
       case 'email':
-        send_email({command:command_result.command, notify_vars: command_result.command.notify_vars, status: command_result.status});
+        send_email({host:command_result.host, command:command_result.command, notify_vars: command_result.command.notify_vars, status: command_result.status, error: command_result.error});
         break;
       default:
         console.log('Cant find notification type');
@@ -59,7 +59,7 @@ function send_email(notification){
     from: 'notifcation@lucaspape.de',
     to: notification.notify_vars.email,
     subject: 'Error while checking command ' + notification.command.name,
-    text: notification.status
+    text: notification.command.name + ' returned ' + notification.status + ' on ' + notification.host.name + ' \n \n ' + notification.error
   }, (error, info)=>{
     if(error){
       console.log(error);
@@ -100,7 +100,7 @@ function run_host_commands(host, commands, callback){
           status = 'ok';
         }
 
-        callback({'command': check_command, 'status': status});
+        callback({'host': host, 'command': check_command, 'status': status, 'error': error + '\n' + stderr});
       });
     }
   });
