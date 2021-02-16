@@ -1,0 +1,15 @@
+{
+   "name":"lucaspape.de",
+   "check_commands":[
+      {
+         "name":"check_http",
+         "vars":{
+            "hostname":"https://lucaspape.de"
+         },
+         "notify":"email",
+         "notify_vars":{
+            "email":"admin@lucaspape.de"
+         }
+      }
+   ]
+}
