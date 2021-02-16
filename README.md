@@ -15,7 +15,7 @@ There are hosts and commands to configure, the hosts will use the commands to ch
 }
 ```
 
-Every command must have a unique ```name```, a ```required_vars``` array (can be empty) and the actual ```command```.
+Every command must have a unique ```name```, a ```required_vars``` array (can be empty) and the actual ```command```.  
 You can specify vars in ```required_vars``` and then use these vars in ```command``` by using a ```$```.
 
 By default a command is considered failed if it outputs an error into stderr.
@@ -32,7 +32,8 @@ You can change it like this:
 }
 ```
 
-Now the command is considered failed when the output is larget than 500.
+Now the command is considered failed when the output is larget than 500.  
+
 Available ```on_error``` methods:
 
 ```out_larger_than_value```       output is larger than value
@@ -51,8 +52,8 @@ You can do the same thing with warnings:
    "warning_value": 0
 }
 ```
-
-Available ```on_warning``` methods: same as ```on_error``` methods
+  
+Available ```on_warning``` methods: same as ```on_error``` methods  
 
 # hosts
 
@@ -88,13 +89,13 @@ Available ```on_warning``` methods: same as ```on_error``` methods
 }
 ```
 
-Every host must have a unique ```name```, a ```notify``` array and a ```check_commands``` array.
+Every host must have a unique ```name```, a ```notify``` array and a ```check_commands``` array.  
 
-The ```notify``` array contains methods on how to notify the user. Every object in the array must have a ```how``` (currently ```email``` or ```influx```) and optionally an extra ```var``` object.
+The ```notify``` array contains methods on how to notify the user. Every object in the array must have a ```how``` (currently ```email``` or ```influx```) and optionally an extra ```var``` object.  
 
-The ```check_commands``` array contains the commands that will be run to check system health.
-Every command must have a ```command_name```, this must be the same as the command name declared in the command.
-Optionally it can have a ```vars``` object for variables.
+The ```check_commands``` array contains the commands that will be run to check system health.  
+Every command must have a ```command_name```, this must be the same as the command name declared in the command.  
+Optionally it can have a ```vars``` object for variables.  
 Optionally ```unique_name``` can be used, if missing it will be generated.
 
 # config
