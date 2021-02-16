@@ -88,10 +88,10 @@ function send_email(host, command, type, state, error, timestamps){
 
   if(error){
     subject = '[' + type + '] Error while checking command ' + command.name;
-    text = command.name + ' returned ' + state + ' on ' + host.name + ' \n \n ' + error + ' \n ' + timestampText;
+    text = command.name + ' returned ' + state + ' on ' + host.name + '\n \n' + error + '\n' + timestampText;
   }else{
     subject = '[' + type + '] Command ' + command.name + ' is OK '
-    text = command.name + ' is now ' + state + ' on ' + host.name + ' \n ' + timestampText;
+    text = command.name + ' is now ' + state + ' on ' + host.name + '\n' + timestampText;
   }
 
   transporter.sendMail({
