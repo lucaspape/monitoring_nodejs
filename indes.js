@@ -35,7 +35,7 @@ fs.readdir(command_dir, (err, files) => {
 
         run_host_commands(host, commands, send_notification);
       });
-    }, 5000);
+    }, 20000);
   })
 });
 

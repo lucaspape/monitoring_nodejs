@@ -10,6 +10,16 @@
          "notify_vars":{
             "email":"admin@lucaspape.de"
          }
+      },
+      {
+         "name":"check_alive",
+         "vars":{
+            "ip4":"1.1.1.1"
+         },
+         "notify":"email",
+         "notify_vars":{
+            "email":"admin@lucaspape.de"
+         }
       }
    ]
 }
