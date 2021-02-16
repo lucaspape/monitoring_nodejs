@@ -21,25 +21,21 @@
       },
       {
          "command_name":"check_alive_ip4",
-         "unique_name": "check_alive_ip4",
          "vars":{
             "ip4":"94.16.110.204"
          }
       },
       {
          "command_name":"check_alive_ip6",
-         "unique_name": "check_alive_ip6",
          "vars":{
             "ip6":"2a03:4000:51:e74::1"
          }
       },
       {
-         "command_name":"check_updates_yay",
-         "unique_name": "check_updates_yay"
+         "command_name":"check_updates_yay"
       },
       {
-         "command_name":"check_procs",
-         "unique_name": "check_procs"
+         "command_name":"check_procs"
       },
       {
          "command_name":"check_systemd_alive",

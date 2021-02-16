@@ -12,6 +12,7 @@
     "child_process": "^1.0.2",
     "fs": "0.0.1-security",
     "influx": "^5.7.0",
-    "nodemailer": "^6.4.18"
+    "nodemailer": "^6.4.18",
+    "uuid": "^8.3.2"
   }
 }
