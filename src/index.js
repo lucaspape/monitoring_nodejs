@@ -26,12 +26,11 @@ fs.readdir(command_dir, (err, files) => {
     files.forEach(file => {
       var host = JSON.parse(fs.readFileSync(host_dir + '/' + file));
 
-      host.check_commands.forEach((command,i) => {
+      host.check_commands.forEach((command, i) => {
         if(!command.unique_name){
           host.check_commands[i].unique_name = command.command_name + '-' + uuidv4();
         }
       });
-
 
       hosts.push(host)
     });
