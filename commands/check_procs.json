@@ -2,5 +2,7 @@
    "name":"check_procs",
    "required_vars":[
    ],
-   "command":"ps -e | wc -l"
+   "command":"ps -e | wc -l",
+   "warning_on": "out_larger_than_value",
+   "warning_value": 500
 }

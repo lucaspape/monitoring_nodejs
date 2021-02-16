@@ -124,7 +124,7 @@ function send_email(notify, host, command, type, state, message, timestamps){
   var text = '';
 
   if(message){
-    subject = '[' + type + '] Error while checking command ' + command.name;
+    subject = '[' + type + '] ' + state + ' while checking command ' + command.name;
     text = command.name + ' returned ' + state + ' on ' + host.name + '\n \n' + message + '\n' + timestampText;
   }else{
     subject = '[' + type + '] Command ' + command.name + ' is OK '
@@ -210,15 +210,54 @@ function run_host_commands(host, commands, callback){
 
               break;
             default:
-              if(error){
-                message = error;
-                state = 'error';
-              }else if(stderr){
-                message = stderr;
-                state = 'error';
-              }else{
-                message = stdout;
-                state = 'ok';
+              switch(command.warning_on){
+                case 'out_larger_than_value':
+                  if(stdout > command.warning_value){
+                    state = 'warning';
+                    message = stdout + ' is bigger than warning value ' + command.warning_value;
+                  }else{
+                    state = 'ok';
+                  }
+
+                  break;
+                case 'out_smaller_than_value':
+                  if(stdout < command.warning_value){
+                    state = 'warning';
+                    message = stdout + ' is smaller than warning value ' + command.warning_value;
+                  }else{
+                    state = 'ok';
+                  }
+
+                  break;
+                case 'value_exact_out':
+                  if(command.warning_value == stdout){
+                    state = 'warning';
+                    message = stdout + ' is exactly warning value ' + command.warning_value;
+                  }else{
+                    state = 'ok';
+                  }
+
+                  break;
+                case 'value_not_exact_out':
+                  if(command.warning_value != stdout){
+                    state = 'warning';
+                    message = stdout + ' is not warning value ' + command.warning_value;
+                  }else{
+                    state = 'ok';
+                  }
+
+                  break;
+                default:
+                  if(error){
+                    message = error;
+                    state = 'error';
+                  }else if(stderr){
+                    message = stderr;
+                    state = 'error';
+                  }else{
+                    message = stdout;
+                    state = 'ok';
+                  }
               }
           }
 
