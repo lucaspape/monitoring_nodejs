@@ -28,10 +28,6 @@
          "name":"check_alive_ip6",
          "vars":{
             "ip6":"2a03:4000:51:e74::1"
-         },
-         "notify":"email",
-         "notify_vars":{
-            "email":"admin@lucaspape.de"
          }
       },
       {
