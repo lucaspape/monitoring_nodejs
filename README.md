@@ -86,7 +86,7 @@ Available ```on_warning``` methods: same as ```on_error``` methods
          "command_name": "check_http",
          "unique_name": "check_http_lucaspape",
          "vars":{
-            "hostname":"https://lucaspape.de"
+            "web_url":"https://lucaspape.de"
          }
       },
       {
