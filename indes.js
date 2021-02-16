@@ -110,77 +110,81 @@ function send_email(host, command, type, state, error, timestamps){
 
 function run_host_commands(host, commands, callback){
   host.check_commands.forEach(check_command => {
-    console.log('Running command: ' + check_command.name);
-
-    var command = commands[check_command.name];
-
-    var run_command = command.command;
-    var has_required_vars = true;
-
-    command.required_vars.forEach((required_var) => {
-      if(!check_command.vars[required_var]){
-        has_required_vars = false;
-      }else{
-        run_command = run_command.replace('$' + required_var, check_command.vars[required_var]);
-      }
-    });
-
-    if(!has_required_vars){
-      callback();
+    if(!commands[check_command.name]){
+      console.log('Could not find command: ' + check_command.name);
     }else{
-      exec('bash -c "' + run_command + '"', (error, stdout, stderr) => {
-        var error = error;
-        var state = '';
+      console.log('Running command: ' + check_command.name);
 
-        switch(command.failure_on){
-          case 'out_larger_than_value':
-            if(stdout > command.failure_value){
-              state = 'error';
-              error = stdout + ' is bigger than failure value ' + command.failure_value;
-            }else{
-              state = 'ok';
-            }
+      var command = commands[check_command.name];
 
-            break;
-          case 'out_smaller_than_value':
-            if(stdout < command.failure_value){
-              state = 'error';
-              error = stdout + ' is smaller than failure value ' + command.failure_value;
-            }else{
-              state = 'ok';
-            }
+      var run_command = command.command;
+      var has_required_vars = true;
 
-            break;
-          case 'value_exact_out':
-            if(command.failure_value == stdout){
-              state = 'error';
-              error = stdout + ' is exactly failure value ' + command.failure_value;
-            }else{
-              state = 'ok';
-            }
-
-            break;
-          case 'value_not_exact_out':
-            if(command.failure_value != stdout){
-              state = 'error';
-              error = stdout + ' is not failure value ' + command.failure_value;
-            }else{
-              state = 'ok';
-            }
-
-            break;
-          default:
-            if(error){
-              state = 'error';
-            }else if(stderr){
-              state = 'error';
-            }else{
-              state = 'ok';
-            }
+      command.required_vars.forEach((required_var) => {
+        if(!check_command.vars[required_var]){
+          has_required_vars = false;
+        }else{
+          run_command = run_command.replace('$' + required_var, check_command.vars[required_var]);
         }
-
-        callback(host, check_command, state, error);
       });
+
+      if(!has_required_vars){
+        callback();
+      }else{
+        exec('bash -c "' + run_command + '"', (error, stdout, stderr) => {
+          var error = error;
+          var state = '';
+
+          switch(command.failure_on){
+            case 'out_larger_than_value':
+              if(stdout > command.failure_value){
+                state = 'error';
+                error = stdout + ' is bigger than failure value ' + command.failure_value;
+              }else{
+                state = 'ok';
+              }
+
+              break;
+            case 'out_smaller_than_value':
+              if(stdout < command.failure_value){
+                state = 'error';
+                error = stdout + ' is smaller than failure value ' + command.failure_value;
+              }else{
+                state = 'ok';
+              }
+
+              break;
+            case 'value_exact_out':
+              if(command.failure_value == stdout){
+                state = 'error';
+                error = stdout + ' is exactly failure value ' + command.failure_value;
+              }else{
+                state = 'ok';
+              }
+
+              break;
+            case 'value_not_exact_out':
+              if(command.failure_value != stdout){
+                state = 'error';
+                error = stdout + ' is not failure value ' + command.failure_value;
+              }else{
+                state = 'ok';
+              }
+
+              break;
+            default:
+              if(error){
+                state = 'error';
+              }else if(stderr){
+                state = 'error';
+              }else{
+                state = 'ok';
+              }
+          }
+
+          callback(host, check_command, state, error);
+        });
+      }
     }
   });
 }

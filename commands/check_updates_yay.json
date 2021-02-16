@@ -1,5 +1,5 @@
 {
-   "name":"check_updates",
+   "name":"check_updates_yay",
    "required_vars":[],
    "command":"yay -Qu | wc -l",
    "failure_on": "out_larger_than_value",

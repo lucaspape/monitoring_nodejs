@@ -1,5 +1,5 @@
 {
-   "name":"check_updates",
+   "name":"check_updates_apt",
    "required_vars":[],
    "command":"apt list --upgradeable | wc -l",
    "failure_on": "out_larger_than_value",
