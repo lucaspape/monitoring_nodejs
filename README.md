@@ -92,7 +92,7 @@ Available ```on_warning``` methods: same as ```on_error``` methods
       {
          "command_name":"check_alive_ip4",
          "vars":{
-            "ip4":"94.16.110.204"
+            "ip4":"1.1.1.1"
          }
       }
    ]
