@@ -1,13 +1,14 @@
 {
-  "reoccurringMessageTime": 30,
-  "checkTime": 10,
+  "reoccurringErrorMessageTime": 60,
+  "reoccurringWarningMessageTime": 60*24,
+  "checkTime": 20,
   "mail": {
     "service": "gmail",
     "auth": {
       "user": "",
       "pass": ""
     },
-    "from": "notifcation@lucaspape.de"
+    "from": "email@example.org"
   },
   "influxdb": {
     "host": "",
