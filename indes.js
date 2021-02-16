@@ -5,7 +5,7 @@ var nodemailer = require('nodemailer');
 const command_dir = 'commands/';
 const host_dir = 'hosts/';
 
-const mail_config = JSON.parse(fs.readFileSync('mail_config.json'));
+const config = JSON.parse(fs.readFileSync('config.json'))
 
 const errors = {};
 
@@ -37,7 +37,7 @@ fs.readdir(command_dir, (err, files) => {
 
         run_host_commands(host, commands, send_notification);
       });
-    }, 20000);
+    }, 1000*config.checkTime);
   })
 });
 
@@ -46,7 +46,7 @@ function send_notification(host, command, state, error){
   if(errors[host.name]){
     if(errors[host.name][command.name]){
         errors[host.name][command.name].lastOccurring = Date.now();
-        if((Date.now() - errors[host.name][command.name].lastNotification) >= 60000*30 || errors[host.name][command.name].lastState !== state){
+        if((Date.now() - errors[host.name][command.name].lastNotification) >= 60000*config.reoccurringMessageTime || errors[host.name][command.name].lastState !== state){
           errors[host.name][command.name].lastNotification = Date.now();
 
           send_email(host, command, 'REOCCURRING', state, error, errors[host.name][command.name]);
@@ -79,7 +79,7 @@ function send_notification(host, command, state, error){
 }
 
 
-var transporter = nodemailer.createTransport(mail_config);
+var transporter = nodemailer.createTransport(config.mail);
 
 function send_email(host, command, type, state, error, timestamps){
   var timestampText = 'First occurred: ' + timeConverter(timestamps.firstOccurring) + '\n Last occurred: ' + timeConverter(timestamps.lastOccurring);
@@ -95,7 +95,7 @@ function send_email(host, command, type, state, error, timestamps){
   }
 
   transporter.sendMail({
-    from: 'notifcation@lucaspape.de',
+    from: config.mail.from,
     to: command.notify_vars.email,
     subject: subject,
     text: text

@@ -1,0 +1,12 @@
+{
+  "reoccurringMessageTime": 30,
+  "checkTime": 30,
+  "mail": {
+    "service": "gmail",
+    "auth": {
+      "user": "@gmail.com",
+      "pass": ""
+    },
+    "from": "notifcation@lucaspape.de"
+  }
+}
