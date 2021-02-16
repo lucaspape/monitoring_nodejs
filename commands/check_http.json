@@ -1,7 +1,7 @@
 {
    "name":"check_http",
    "required_vars":[
-      "hostname"
+      "web_url"
    ],
-   "command":"curl $hostname --fail --silent --show-error"
+   "command":"curl $web_url --fail --silent --show-error"
 }
