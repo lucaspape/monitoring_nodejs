@@ -1,5 +1,5 @@
 {
-   "name":"check_alive",
+   "name":"check_alive_ip4",
    "required_vars":[
       "ip4"
    ],

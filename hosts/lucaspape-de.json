@@ -12,7 +12,7 @@
          }
       },
       {
-         "name":"check_alive",
+         "name":"check_alive_ip4",
          "vars":{
             "ip4":"1.1.1.1"
          },

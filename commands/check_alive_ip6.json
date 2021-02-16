@@ -1,0 +1,7 @@
+{
+   "name":"check_alive_ip6",
+   "required_vars":[
+      "ip6"
+   ],
+   "command":"ping -c1 -6 $ip6"
+}
