@@ -42,7 +42,7 @@ You can change it like this:
 }
 ```
 
-Now the command is considered failed when the output is larget than 500.  
+Now the command is considered failed when the output is larger than 500.  
 
 Available ```on_error``` methods:
 
