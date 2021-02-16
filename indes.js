@@ -7,6 +7,8 @@ const host_dir = 'hosts/';
 
 const mail_config = JSON.parse(fs.readFileSync('mail_config.json'));
 
+const errors = {};
+
 fs.readdir(command_dir, (err, files) => {
   var commands = {};
 
@@ -39,11 +41,36 @@ fs.readdir(command_dir, (err, files) => {
   })
 });
 
-function send_notification(command_result){
-  if(command_result.status !== 'ok'){
-    switch(command_result.command.notify){
+function send_notification(host, command, state, error){
+  //REOCCURRING
+  if(errors[host.name]){
+    if(errors[host.name][command.name]){
+        errors[host.name][command.name].lastOccurring = Date.now();
+        if((Date.now() - errors[host.name][command.name].lastNotification) >= 60000*30 || errors[host.name][command.name].lastState !== state){
+          errors[host.name][command.name].lastNotification = Date.now();
+
+          send_email(host, command, 'REOCCURRING', state, error, errors[host.name][command.name]);
+
+          if(state === 'ok'){
+            errors[host.name][command.name] = undefined;
+          }else{
+            errors[host.name][command.name].lastState = state;
+          }
+        }
+
+        return;
+    }
+  }else{
+    errors[host.name] = {};
+  }
+
+  //FIRST
+  if(state !== 'ok'){
+    errors[host.name][command.name] = {lastState: state, firstOccurring: Date.now(), lastOccurring: Date.now(), lastNotification: Date.now()};
+
+    switch(command.notify){
       case 'email':
-        send_email({host:command_result.host, command:command_result.command, notify_vars: command_result.command.notify_vars, status: command_result.status, error: command_result.error});
+        send_email(host, command, 'NEW', state, error, errors[host.name][command.name]);
         break;
       default:
         console.log('Cant find notification type');
@@ -54,12 +81,24 @@ function send_notification(command_result){
 
 var transporter = nodemailer.createTransport(mail_config);
 
-function send_email(notification){
+function send_email(host, command, type, state, error, timestamps){
+  var timestampText = 'First occurred: ' + timeConverter(timestamps.firstOccurring) + '\n Last occurred: ' + timeConverter(timestamps.lastOccurring);
+  var subject = '';
+  var text = '';
+
+  if(error){
+    subject = '[' + type + '] Error while checking command ' + command.name;
+    text = command.name + ' returned ' + state + ' on ' + host.name + ' \n \n ' + error + ' \n ' + timestampText;
+  }else{
+    subject = '[' + type + '] Command ' + command.name + ' is OK '
+    text = command.name + ' is now ' + state + ' on ' + host.name + ' \n ' + timestampText;
+  }
+
   transporter.sendMail({
     from: 'notifcation@lucaspape.de',
-    to: notification.notify_vars.email,
-    subject: 'Error while checking command ' + notification.command.name,
-    text: notification.command.name + ' returned ' + notification.status + ' on ' + notification.host.name + ' \n \n ' + notification.error
+    to: command.notify_vars.email,
+    subject: subject,
+    text: text
   }, (error, info)=>{
     if(error){
       console.log(error);
@@ -90,18 +129,31 @@ function run_host_commands(host, commands, callback){
       callback();
     }else{
       exec('bash -c "' + run_command + '"', (error, stdout, stderr) => {
-        var status = '';
+        var state = '';
 
         if(error){
-          status = 'error';
+          state = 'error';
         }else if(stderr){
-          status = 'error';
+          state = 'error';
         }else{
-          status = 'ok';
+          state = 'ok';
         }
 
-        callback({'host': host, 'command': check_command, 'status': status, 'error': error + '\n' + stderr});
+        callback(host, check_command, state, error);
       });
     }
   });
+}
+
+function timeConverter(UNIX_timestamp){
+  var a = new Date(UNIX_timestamp);
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var year = a.getFullYear();
+  var month = months[a.getMonth()];
+  var date = a.getDate();
+  var hour = a.getHours();
+  var min = a.getMinutes();
+  var sec = a.getSeconds();
+  var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
+  return time;
 }
