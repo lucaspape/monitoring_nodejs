@@ -168,7 +168,7 @@ function run_host_commands(host, commands, callback){
       if(!has_required_vars){
         callback();
       }else{
-        exec('bash -c "' + run_command + '"', (error, stdout, stderr) => {
+        exec('timeout 10 bash -c "' + run_command + '"', (error, stdout, stderr) => {
           var message = '';
           var state = '';
 
