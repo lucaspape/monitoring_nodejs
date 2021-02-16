@@ -36,10 +36,10 @@ Now the command is considered failed when the output is larget than 500.
 
 Available ```on_error``` methods:
 
-```out_larger_than_value```       output is larger than value
-```out_smaller_than_value```      output is smaller than value
-```value_exact_out```             output is exactly value
-```value_not_exact_out```         output is exactly not value
+```out_larger_than_value```       output is larger than value  
+```out_smaller_than_value```      output is smaller than value  
+```value_exact_out```             output is exactly value  
+```value_not_exact_out```         output is exactly not value  
 
 You can do the same thing with warnings:
 
