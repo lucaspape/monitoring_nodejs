@@ -36,6 +36,9 @@
       },
       {
          "name":"check_updates_yay"
+      },
+      {
+         "name":"check_procs"
       }
    ]
 }

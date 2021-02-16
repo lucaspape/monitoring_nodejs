@@ -1,0 +1,6 @@
+{
+   "name":"check_procs",
+   "required_vars":[
+   ],
+   "command":"ps -e | wc -l"
+}

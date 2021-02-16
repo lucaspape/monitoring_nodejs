@@ -62,7 +62,7 @@ function send_notification_influxdb(notify, host, command, state, message){
         measurement: command.name,
         fields: {
           state: Influx.FieldType.STRING,
-          message: Influx.FieldType.lastOccurring
+          message: Influx.FieldType.STRING
         },
         tags: [
           'host'
@@ -169,14 +169,14 @@ function run_host_commands(host, commands, callback){
         callback();
       }else{
         exec('bash -c "' + run_command + '"', (error, stdout, stderr) => {
-          var error = error;
+          var message = '';
           var state = '';
 
           switch(command.failure_on){
             case 'out_larger_than_value':
               if(stdout > command.failure_value){
                 state = 'error';
-                error = stdout + ' is bigger than failure value ' + command.failure_value;
+                message = stdout + ' is bigger than failure value ' + command.failure_value;
               }else{
                 state = 'ok';
               }
@@ -185,7 +185,7 @@ function run_host_commands(host, commands, callback){
             case 'out_smaller_than_value':
               if(stdout < command.failure_value){
                 state = 'error';
-                error = stdout + ' is smaller than failure value ' + command.failure_value;
+                message = stdout + ' is smaller than failure value ' + command.failure_value;
               }else{
                 state = 'ok';
               }
@@ -194,7 +194,7 @@ function run_host_commands(host, commands, callback){
             case 'value_exact_out':
               if(command.failure_value == stdout){
                 state = 'error';
-                error = stdout + ' is exactly failure value ' + command.failure_value;
+                message = stdout + ' is exactly failure value ' + command.failure_value;
               }else{
                 state = 'ok';
               }
@@ -203,7 +203,7 @@ function run_host_commands(host, commands, callback){
             case 'value_not_exact_out':
               if(command.failure_value != stdout){
                 state = 'error';
-                error = stdout + ' is not failure value ' + command.failure_value;
+                message = stdout + ' is not failure value ' + command.failure_value;
               }else{
                 state = 'ok';
               }
@@ -211,15 +211,18 @@ function run_host_commands(host, commands, callback){
               break;
             default:
               if(error){
+                message = error;
                 state = 'error';
               }else if(stderr){
+                message = stderr;
                 state = 'error';
               }else{
+                message = stdout;
                 state = 'ok';
               }
           }
 
-          callback(host, check_command, state, error);
+          callback(host, check_command, state, message);
         });
       }
     }
