@@ -110,6 +110,6 @@ Optionally ```unique_name``` can be used, if missing it will be generated.
 
 # config
 
-```reoccurringErrorMessageTime```: time between two error messages (that resulted from the same command) in minutes
-```reoccurringWarningMessageTime```: time between two warning messages (that resulted from the same command) in minutes
-```checkTime```: time between batch of commands in seconds
+```reoccurringErrorMessageTime```: time between two error messages (that resulted from the same command) in minutes  
+```reoccurringWarningMessageTime```: time between two warning messages (that resulted from the same command) in minutes  
+```checkTime```: time between batch of commands in seconds  
