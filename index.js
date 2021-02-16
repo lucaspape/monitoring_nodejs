@@ -40,14 +40,14 @@ fs.readdir(command_dir, (err, files) => {
   })
 });
 
-function send_notification(host, command, state, message){
+function send_notification(host, check_command, state, message){
   host.notify.forEach((notify) => {
     switch(notify.how){
       case 'email':
-        send_notification_email(notify, host, command, state, message);
+        send_notification_email(notify, host, check_command, state, message);
         break;
       case 'influx':
-        send_notification_influxdb(notify, host, command, state, message);
+        send_notification_influxdb(notify, host, check_command, state, message);
         break;
       default:
         console.log('Cant find notification type ' + notify.how);
@@ -55,11 +55,11 @@ function send_notification(host, command, state, message){
   });
 }
 
-function send_notification_influxdb(notify, host, command, state, message){
+function send_notification_influxdb(notify, host, check_command, state, message){
   var influxdb = new Influx.InfluxDB({host: config.influxdb.host, database: config.influxdb.database, username: config.influxdb.username, password: config.influxdb.password,
     schema: [
       {
-        measurement: command.name,
+        measurement: check_command.command_name,
         fields: {
           state: Influx.FieldType.STRING,
           message: Influx.FieldType.STRING
@@ -73,7 +73,7 @@ function send_notification_influxdb(notify, host, command, state, message){
 
   influxdb.writePoints([
     {
-      measurement: command.name,
+      measurement: check_command.command_name,
       tags: { host: host.name },
       fields: { state:state, message:message }
     }
@@ -85,20 +85,22 @@ function send_notification_influxdb(notify, host, command, state, message){
 
 const mail_messages = {};
 
-function send_notification_email(notify, host, command, state, message){
+function send_notification_email(notify, host, check_command, state, message){
   //REOCCURRING
   if(mail_messages[host.name]){
-    if(mail_messages[host.name][command.name]){
-        mail_messages[host.name][command.name].lastOccurring = Date.now();
-        if((Date.now() - mail_messages[host.name][command.name].lastNotification) >= 60000*config.reoccurringMessageTime || mail_messages[host.name][command.name].lastState !== state){
-          mail_messages[host.name][command.name].lastNotification = Date.now();
+    if(mail_messages[host.name][check_command.unique_name]){
 
-          send_email(notify, host, command, 'REOCCURRING', state, message, mail_messages[host.name][command.name]);
+        mail_messages[host.name][check_command.unique_name].lastOccurring = Date.now();
+
+        if((Date.now() - mail_messages[host.name][check_command.unique_name].lastNotification) >= 60000*config.reoccurringMessageTime || mail_messages[host.name][check_command.unique_name].lastState !== state){
+          mail_messages[host.name][check_command.unique_name].lastNotification = Date.now();
+
+          send_email(notify, host, check_command, 'REOCCURRING', state, message, mail_messages[host.name][check_command.unique_name]);
 
           if(state === 'ok'){
-            mail_messages[host.name][command.name] = undefined;
+            mail_messages[host.name][check_command.unique_name] = undefined;
           }else{
-            mail_messages[host.name][command.name].lastState = state;
+            mail_messages[host.name][check_command.unique_name].lastState = state;
           }
         }
 
@@ -110,23 +112,23 @@ function send_notification_email(notify, host, command, state, message){
 
   //FIRST
   if(state !== 'ok'){
-    mail_messages[host.name][command.name] = {lastState: state, firstOccurring: Date.now(), lastOccurring: Date.now(), lastNotification: Date.now()};
+    mail_messages[host.name][check_command.unique_name] = {lastState: state, firstOccurring: Date.now(), lastOccurring: Date.now(), lastNotification: Date.now()};
 
-    send_email(notify, host, command, 'NEW', state, message, mail_messages[host.name][command.name]);
+    send_email(notify, host, check_command, 'NEW', state, message, mail_messages[host.name][check_command.unique_name]);
   }
 }
 
 var transporter = nodemailer.createTransport(config.mail);
 
-function send_email(notify, host, command, type, state, message, timestamps){
+function send_email(notify, host, check_command, type, state, message, timestamps){
   var timestampText = 'First occurred: ' + timeConverter(timestamps.firstOccurring) + '\n Last occurred: ' + timeConverter(timestamps.lastOccurring);
-  var subject = '[' + type + '] ' + state + ' while checking command ' + command.name;
+  var subject = '[' + type + '] ' + state + ' while checking command ' + check_command.command_name;
   var text = '';
 
   if(message){
-    text = command.name + ' returned ' + state + ' on ' + host.name + '\n \n' + message + '\n' + timestampText;
+    text = check_command.unique_name + ' returned ' + state + ' on ' + host.name + '\n \n' + message + '\n' + timestampText;
   }else{
-    text = command.name + ' is now ' + state + ' on ' + host.name + '\n' + timestampText;
+    text = check_command.unique_name + ' is now ' + state + ' on ' + host.name + '\n' + timestampText;
   }
 
   transporter.sendMail({
@@ -138,19 +140,19 @@ function send_email(notify, host, command, type, state, message, timestamps){
     if(error){
       console.log(error);
     }else{
-      console.log('Sent notification');
+      console.log('Sent email');
     }
   });
 }
 
 function run_host_commands(host, commands, callback){
   host.check_commands.forEach(check_command => {
-    if(!commands[check_command.name]){
-      console.log('Could not find command: ' + check_command.name);
+    if(!commands[check_command.command_name]){
+      console.log('Could not find command: ' + check_command.command_name);
     }else{
-      console.log('Running command: ' + check_command.name);
+      console.log('Running command: ' + check_command.command_name);
 
-      var command = commands[check_command.name];
+      var command = commands[check_command.command_name];
 
       var run_command = command.command;
       var has_required_vars = true;

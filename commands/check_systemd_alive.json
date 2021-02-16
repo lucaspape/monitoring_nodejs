@@ -1,0 +1,7 @@
+{
+   "name":"check_systemd_alive",
+   "required_vars":[
+     "service"
+   ],
+   "command":"systemctl is-active --quiet $service"
+}
