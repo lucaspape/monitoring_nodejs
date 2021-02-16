@@ -1,11 +1,16 @@
 {
    "name":"lucaspape.de",
-   "notify": {
-     "how": "email",
-     "vars": {
-       "email": "admin@lucaspape.de"
+   "notify": [
+     {
+       "how": "email",
+       "vars": {
+         "email": "admin@lucaspape.de"
+       }
+     },
+     {
+       "how": "influx"
      }
-   },
+   ],
    "check_commands":[
       {
          "name":"check_http",

@@ -1,13 +1,12 @@
 const fs = require('fs');
 const { exec } = require("child_process");
 var nodemailer = require('nodemailer');
+const Influx = require('influx')
 
 const command_dir = 'commands/';
 const host_dir = 'hosts/';
 
 const config = JSON.parse(fs.readFileSync('config.json'))
-
-const errors = {};
 
 fs.readdir(command_dir, (err, files) => {
   var commands = {};
@@ -41,54 +40,92 @@ fs.readdir(command_dir, (err, files) => {
   })
 });
 
-function send_notification(host, command, state, error){
-  //REOCCURRING
-  if(errors[host.name]){
-    if(errors[host.name][command.name]){
-        errors[host.name][command.name].lastOccurring = Date.now();
-        if((Date.now() - errors[host.name][command.name].lastNotification) >= 60000*config.reoccurringMessageTime || errors[host.name][command.name].lastState !== state){
-          errors[host.name][command.name].lastNotification = Date.now();
+function send_notification(host, command, state, message){
+  host.notify.forEach((notify) => {
+    switch(notify.how){
+      case 'email':
+        send_notification_email(notify, host, command, state, message);
+        break;
+      case 'influx':
+        send_notification_influxdb(notify, host, command, state, message);
+        break;
+      default:
+        console.log('Cant find notification type ' + notify.how);
+    }
+  });
+}
 
-          send_email(host, command, 'REOCCURRING', state, error, errors[host.name][command.name]);
+function send_notification_influxdb(notify, host, command, state, message){
+  var influxdb = new Influx.InfluxDB({host: config.influxdb.host, database: config.influxdb.database, username: config.influxdb.username, password: config.influxdb.password,
+    schema: [
+      {
+        measurement: command.name,
+        fields: {
+          state: Influx.FieldType.STRING,
+          message: Influx.FieldType.lastOccurring
+        },
+        tags: [
+          'host'
+        ]
+      }
+    ]
+  });
+
+  influxdb.writePoints([
+    {
+      measurement: command.name,
+      tags: { host: host.name },
+      fields: { state:state, message:message }
+    }
+  ]).catch(err => {
+    console.log('Could not save to influxdb');
+    console.log(err.stack);
+  });
+}
+
+const mail_messages = {};
+
+function send_notification_email(notify, host, command, state, message){
+  //REOCCURRING
+  if(mail_messages[host.name]){
+    if(mail_messages[host.name][command.name]){
+        mail_messages[host.name][command.name].lastOccurring = Date.now();
+        if((Date.now() - mail_messages[host.name][command.name].lastNotification) >= 60000*config.reoccurringMessageTime || mail_messages[host.name][command.name].lastState !== state){
+          mail_messages[host.name][command.name].lastNotification = Date.now();
+
+          send_email(notify, host, command, 'REOCCURRING', state, message, mail_messages[host.name][command.name]);
 
           if(state === 'ok'){
-            errors[host.name][command.name] = undefined;
+            mail_messages[host.name][command.name] = undefined;
           }else{
-            errors[host.name][command.name].lastState = state;
+            mail_messages[host.name][command.name].lastState = state;
           }
         }
 
         return;
     }
   }else{
-    errors[host.name] = {};
+    mail_messages[host.name] = {};
   }
 
   //FIRST
   if(state !== 'ok'){
-    errors[host.name][command.name] = {lastState: state, firstOccurring: Date.now(), lastOccurring: Date.now(), lastNotification: Date.now()};
+    mail_messages[host.name][command.name] = {lastState: state, firstOccurring: Date.now(), lastOccurring: Date.now(), lastNotification: Date.now()};
 
-    switch(host.notify.how){
-      case 'email':
-        send_email(host, command, 'NEW', state, error, errors[host.name][command.name]);
-        break;
-      default:
-        console.log('Cant find notification type');
-    }
+    send_email(notify, host, command, 'NEW', state, message, mail_messages[host.name][command.name]);
   }
 }
 
-
 var transporter = nodemailer.createTransport(config.mail);
 
-function send_email(host, command, type, state, error, timestamps){
+function send_email(notify, host, command, type, state, message, timestamps){
   var timestampText = 'First occurred: ' + timeConverter(timestamps.firstOccurring) + '\n Last occurred: ' + timeConverter(timestamps.lastOccurring);
   var subject = '';
   var text = '';
 
-  if(error){
+  if(message){
     subject = '[' + type + '] Error while checking command ' + command.name;
-    text = command.name + ' returned ' + state + ' on ' + host.name + '\n \n' + error + '\n' + timestampText;
+    text = command.name + ' returned ' + state + ' on ' + host.name + '\n \n' + message + '\n' + timestampText;
   }else{
     subject = '[' + type + '] Command ' + command.name + ' is OK '
     text = command.name + ' is now ' + state + ' on ' + host.name + '\n' + timestampText;
@@ -96,10 +133,10 @@ function send_email(host, command, type, state, error, timestamps){
 
   transporter.sendMail({
     from: config.mail.from,
-    to: host.notify.vars.email,
+    to: notify.vars.email,
     subject: subject,
     text: text
-  }, (error, info)=>{
+  }, (message, info)=>{
     if(error){
       console.log(error);
     }else{

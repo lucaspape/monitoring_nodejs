@@ -1,12 +1,18 @@
 {
   "reoccurringMessageTime": 30,
-  "checkTime": 30,
+  "checkTime": 10,
   "mail": {
     "service": "gmail",
     "auth": {
-      "user": "@gmail.com",
+      "user": "",
       "pass": ""
     },
     "from": "notifcation@lucaspape.de"
+  },
+  "influxdb": {
+    "host": "",
+    "database": "monitoring_db",
+    "username": "admin",
+    "password:": ""
   }
 }
