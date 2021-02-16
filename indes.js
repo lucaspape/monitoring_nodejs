@@ -129,14 +129,45 @@ function run_host_commands(host, commands, callback){
       callback();
     }else{
       exec('bash -c "' + run_command + '"', (error, stdout, stderr) => {
+        var error = error;
         var state = '';
 
-        if(error){
-          state = 'error';
-        }else if(stderr){
-          state = 'error';
-        }else{
-          state = 'ok';
+        switch(command.failure_on){
+          case 'out_larger_than_value':
+            if(stdout > command.failure_value){
+              state = 'error';
+              error = stdout + ' is bigger than failure value ' + command.failure_value;
+            }else{
+              state = 'ok';
+            }
+
+            break;
+          case 'out_smaller_than_value':
+            if(stdout < command.failure_value){
+              state = 'error';
+              error = stdout + ' is smaller than failure value ' + command.failure_value;
+            }else{
+              state = 'ok';
+            }
+
+            break;
+          case 'value_exact_out':
+            if(command.failure_value == stdout){
+              state = 'error';
+              error = stdout + ' is exactly failure value ' + command.failure_value;
+            }else{
+              state = 'ok';
+            }
+
+            break;
+          default:
+            if(error){
+              state = 'error';
+            }else if(stderr){
+              state = 'error';
+            }else{
+              state = 'ok';
+            }
         }
 
         callback(host, check_command, state, error);

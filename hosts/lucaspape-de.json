@@ -20,6 +20,13 @@
          "notify_vars":{
             "email":"admin@lucaspape.de"
          }
+      },
+      {
+         "name":"check_updates",
+         "notify":"email",
+         "notify_vars":{
+            "email":"admin@lucaspape.de"
+         }
       }
    ]
 }
