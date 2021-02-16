@@ -1,8 +1,7 @@
 {
    "name":"check_updates",
-   "required_vars":[
-   ],
-   "command":"yay -Qu | tee /tmp/updates | wc -l",
+   "required_vars":[],
+   "command":"yay -Qu | wc -l",
    "failure_on": "out_larger_than_value",
    "failure_value": 0
 }
