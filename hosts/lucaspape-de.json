@@ -1,24 +1,22 @@
 {
    "name":"lucaspape.de",
+   "notify": {
+     "how": "email",
+     "vars": {
+       "email": "admin@lucaspape.de"
+     }
+   },
    "check_commands":[
       {
          "name":"check_http",
          "vars":{
             "hostname":"https://lucaspape.de"
-         },
-         "notify":"email",
-         "notify_vars":{
-            "email":"admin@lucaspape.de"
          }
       },
       {
          "name":"check_alive_ip4",
          "vars":{
             "ip4":"94.16.110.204"
-         },
-         "notify":"email",
-         "notify_vars":{
-            "email":"admin@lucaspape.de"
          }
       },
       {
@@ -32,11 +30,7 @@
          }
       },
       {
-         "name":"check_updates_yay",
-         "notify":"email",
-         "notify_vars":{
-            "email":"admin@lucaspape.de"
-         }
+         "name":"check_updates_yay"
       }
    ]
 }

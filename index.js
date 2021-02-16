@@ -68,7 +68,7 @@ function send_notification(host, command, state, error){
   if(state !== 'ok'){
     errors[host.name][command.name] = {lastState: state, firstOccurring: Date.now(), lastOccurring: Date.now(), lastNotification: Date.now()};
 
-    switch(command.notify){
+    switch(host.notify.how){
       case 'email':
         send_email(host, command, 'NEW', state, error, errors[host.name][command.name]);
         break;
@@ -96,7 +96,7 @@ function send_email(host, command, type, state, error, timestamps){
 
   transporter.sendMail({
     from: config.mail.from,
-    to: command.notify_vars.email,
+    to: host.notify.vars.email,
     subject: subject,
     text: text
   }, (error, info)=>{
