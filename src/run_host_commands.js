@@ -40,14 +40,20 @@ module.exports = function (host, commands, callback){
             }
           }
 
-          callback(host, check_command, error_or_warning.state, error_or_warning.message);
+          if(command.debug_command){
+            exec_command(command.debug_command, 1, (result)=>{
+              callback(host, check_command, error_or_warning.state, error_or_warning.message + '\n\nDebug information:\n\n' + result.stdout + '\n');
+            });
+          }else{
+            callback(host, check_command, error_or_warning.state, error_or_warning.message);
+          }
         });
       }
     }
   });
 }
 
-function exec_command(command, validation_runs, callback){
+function exec_command(command, runs, callback){
   var i = 0;
 
   var lastError = '';
@@ -55,7 +61,7 @@ function exec_command(command, validation_runs, callback){
   var lastStdout = '';
 
   var command_callback = function(){
-    if(i < validation_runs){
+    if(i < runs){
       exec('timeout 10 bash -c "' + command + '"', (error, stdout, stderr) => {
         if(error || stderr){
           i++;
@@ -83,7 +89,7 @@ function check_for_method(error, stderr, stdout, failure_state, command_method, 
   switch(command_method){
     case 'out_larger_than_value':
       if(stdout > command_value){
-        return({ state: failure_state, message: stdout + ' is bigger than ' + failure_state + ' value ' + command.failure_value});
+        return({ state: failure_state, message: stdout + ' is bigger than ' + failure_state + ' value ' + command_value});
       }else{
         return({ state: 'ok'});
       }
@@ -91,7 +97,7 @@ function check_for_method(error, stderr, stdout, failure_state, command_method, 
       break;
     case 'out_smaller_than_value':
       if(stdout < command_value){
-        return({ state: failure_state, message: stdout + ' is smaller than ' + failure_state + ' value ' + command.failure_value});
+        return({ state: failure_state, message: stdout + ' is smaller than ' + failure_state + ' value ' + command_value});
       }else{
         return({ state: 'ok'});
       }
@@ -99,7 +105,7 @@ function check_for_method(error, stderr, stdout, failure_state, command_method, 
       break;
     case 'value_exact_out':
       if(command_value == stdout){
-        return({ state: failure_state, message: stdout + ' is exactly ' + failure_state + ' value ' + command.failure_value});
+        return({ state: failure_state, message: stdout + ' is exactly ' + failure_state + ' value ' + command_value});
       }else{
         return({ state: 'ok'});
       }
@@ -107,7 +113,7 @@ function check_for_method(error, stderr, stdout, failure_state, command_method, 
       break;
     case 'value_not_exact_out':
       if(command_value != stdout){
-        return({ state: failure_state, message: stdout + ' is not ' + failure_state + ' value ' + command.failure_value});
+        return({ state: failure_state, message: stdout + ' is not ' + failure_state + ' value ' + command_value});
       }else{
         return({ state: 'ok'});
       }
