@@ -84,6 +84,23 @@ Available ```warning_on``` methods: same as ```error_on``` methods
 Instead of ```command``` you can write ```command_base64```, useful for complex commands that would result in JSON parse errors.
 You can still use variables the same way.
 
+##
+
+```
+{
+   "name":"check_updates_yay",
+   "required_vars":[],
+   "command":"yay -Qu | wc -l",
+   "warning_on": "out_larger_than_value",
+   "warning_value": 0,
+   "debug_command": "yay -Qu"
+}
+```
+
+You can add a ```debug_command```, if an error occurs it will be run and the output included in the notification.  
+You can use the same vars like in ```command``` specified in ```required_vars```.  
+Instead of ```debug_command``` you can write ```debug_command_base64```.  
+
 # hosts
 
 ```
@@ -139,3 +156,4 @@ Optionally ```unique_name``` can be used, if missing it will be generated.
 
 # todo
 - check if process is running command
+- check if docker container is running
