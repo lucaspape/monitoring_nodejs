@@ -47,7 +47,7 @@ module.exports = function (config, host, commands, callback){
         if(!has_required_vars){
           callback();
         }else{
-          exec_command(run_command, config.command_dalay,config.validate_error, config.command_timeout, (result) => {
+          exec_command(run_command, config.command_delay, config.validate_error, config.command_timeout, (result) => {
             var error_or_warning = check_for_method(result.error, result.stderr, result.stdout, 'error', command.failure_on, command.failure_value);
 
             if(!error_or_warning){
@@ -84,7 +84,7 @@ module.exports = function (config, host, commands, callback){
   loop();
 }
 
-function exec_command(command, command_dalay, runs, timeout, callback){
+function exec_command(command, command_delay, runs, timeout, callback){
   setTimeout(()=>{
     var i = 0;
 
@@ -115,7 +115,7 @@ function exec_command(command, command_dalay, runs, timeout, callback){
     }
 
     command_callback();
-  });
+  }, command_delay*1000);
 }
 
 function check_for_method(error, stderr, stdout, failure_state, command_method, command_value){

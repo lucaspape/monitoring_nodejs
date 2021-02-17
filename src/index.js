@@ -9,36 +9,42 @@ const host_dir = 'hosts/';
 
 const config = JSON.parse(fs.readFileSync('config.json'));
 
-if(validate_config()){
-  console.log('Config validated!');
 
-  fs.readdir(command_dir, (err, files) => {
-    var commands = {};
 
+fs.readdir(command_dir, (err, files) => {
+  var commands = {};
+
+  files.forEach(file => {
+    var command = JSON.parse(fs.readFileSync(command_dir + '/' + file));
+
+    commands[command.name] = command;
+  });
+
+  console.log('Loaded commands');
+
+  var hosts = [];
+
+  var number_of_commands = 0;
+
+  fs.readdir(host_dir, (err, files) => {
     files.forEach(file => {
-      var command = JSON.parse(fs.readFileSync(command_dir + '/' + file));
+      var host = JSON.parse(fs.readFileSync(host_dir + '/' + file));
 
-      commands[command.name] = command;
-    });
+      host.check_commands.forEach((command, i) => {
+        if(!command.unique_name){
+          host.check_commands[i].unique_name = command.command_name + '-' + uuidv4();
+        }
 
-    console.log('Loaded commands');
-
-    var hosts = [];
-
-    fs.readdir(host_dir, (err, files) => {
-      files.forEach(file => {
-        var host = JSON.parse(fs.readFileSync(host_dir + '/' + file));
-
-        host.check_commands.forEach((command, i) => {
-          if(!command.unique_name){
-            host.check_commands[i].unique_name = command.command_name + '-' + uuidv4();
-          }
-        });
-
-        hosts.push(host)
+        number_of_commands++;
       });
 
-      console.log('Loaded hosts');
+      hosts.push(host)
+    });
+
+    console.log('Loaded hosts');
+
+    if(validate_config(number_of_commands)){
+      console.log('Config validated!');
 
       setInterval(()=>{
         hosts.forEach(host => {
@@ -49,13 +55,13 @@ if(validate_config()){
           });
         });
       }, 1000*config.check_time);
-    })
-  });
-}else{
-  console.log('Config validation failed!');
-}
+    }else{
+      console.log('Config validation failed!');
+    }
+  })
+});
 
-function validate_config(){
+function validate_config(number_of_commands){
   if(config){
     if(!config.reoccurring_error_message_time){
       console.log('reoccurring_error_message_time missing in config');
@@ -82,8 +88,9 @@ function validate_config(){
       return false;
     }
 
-    if(((config.command_timeout) * config.validate_error + config.command_dalay) > config.check_time){
-      console.log('(command_timeout)*validate_error+command_dalay cannot be bigger than check_time!');
+    if((((config.command_timeout + config.command_delay) * config.validate_error))*number_of_commands > config.check_time){
+      console.log('((command_timeout + command_dalay)*validate_error)*number_of_commands cannot be bigger than check_time!');
+      console.log((((config.command_timeout + config.command_delay) * config.validate_error))*number_of_commands + '>' + config.check_time);
       return false;
     }
 
