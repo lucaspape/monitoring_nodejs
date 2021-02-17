@@ -1,6 +1,6 @@
 const { exec } = require("child_process");
 
-module.exports = function (config, host, commands, callback){
+module.exports = function (config, host, commands, notification_callback, callback){
   var i = 0;
 
   var loop = function(){
@@ -45,7 +45,10 @@ module.exports = function (config, host, commands, callback){
         });
 
         if(!has_required_vars){
-          callback();
+          console.log('Not enough vars for command!');
+
+          i++;
+          loop();
         }else{
           exec_command(run_command, config.command_delay, config.validate_error, config.command_timeout, (result) => {
             var error_or_warning = check_for_method(result.error, result.stderr, result.stdout, 'error', command.failure_on, command.failure_value);
@@ -66,10 +69,10 @@ module.exports = function (config, host, commands, callback){
 
             if(debug_command){
               exec_command(debug_command, 0, 1, config.command_timeout, (debug_result)=>{
-                callback(host, check_command, error_or_warning.state, error_or_warning.message + '\n\nDebug information:\n\n' + 'stdout:\n' +  debug_result.stdout + 'stderr:\n' + debug_result.stderr + '\n', result.stdout);
+                notification_callback(host, check_command, error_or_warning.state, error_or_warning.message + '\n\nDebug information:\n\n' + 'stdout:\n' +  debug_result.stdout + 'stderr:\n' + debug_result.stderr + '\n', result.stdout);
               });
             }else{
-              callback(host, check_command, error_or_warning.state, error_or_warning.message, result.stdout);
+              notification_callback(host, check_command, error_or_warning.state, error_or_warning.message, result.stdout);
             }
 
             i++;
@@ -78,6 +81,8 @@ module.exports = function (config, host, commands, callback){
           });
         }
       }
+    }else{
+      callback();
     }
   }
 
