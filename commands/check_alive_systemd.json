@@ -3,5 +3,6 @@
    "required_vars":[
      "service"
    ],
-   "command":"systemctl is-active --quiet $service"
+   "command":"systemctl is-active --quiet $service",
+   "debug_command":"systemctl status $service"
 }

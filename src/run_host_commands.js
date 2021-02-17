@@ -10,6 +10,8 @@ module.exports = function (host, commands, callback){
       var command = commands[check_command.command_name];
 
       var run_command = command.command;
+      var debug_command = command.debug_command;
+
       var has_required_vars = true;
 
       command.required_vars.forEach((required_var) => {
@@ -17,6 +19,10 @@ module.exports = function (host, commands, callback){
           has_required_vars = false;
         }else{
           run_command = run_command.replace('$' + required_var, check_command.vars[required_var]);
+
+          if(debug_command){
+            debug_command = debug_command.replace('$' + required_var, check_command.vars[required_var]);
+          }
         }
       });
 
@@ -40,9 +46,9 @@ module.exports = function (host, commands, callback){
             }
           }
 
-          if(command.debug_command){
-            exec_command(command.debug_command, 1, (result)=>{
-              callback(host, check_command, error_or_warning.state, error_or_warning.message + '\n\nDebug information:\n\n' + result.stdout + '\n');
+          if(debug_command){
+            exec_command(debug_command, 1, (result)=>{
+              callback(host, check_command, error_or_warning.state, error_or_warning.message + '\n\nDebug information:\n\n' + 'stdout:\n' +  result.stdout + 'stderr:\n' + result.stderr + '\n');
             });
           }else{
             callback(host, check_command, error_or_warning.state, error_or_warning.message);
