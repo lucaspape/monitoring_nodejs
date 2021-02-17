@@ -64,6 +64,21 @@ You can do the same thing with warnings:
 ```
   
 Available ```warning_on``` methods: same as ```error_on``` methods  
+  
+```
+{
+   "name":"check_diskspace_usage",
+   "required_vars":[
+     "disk"
+   ],
+   "command_base64":"ZGYgLWhsIHwgZ3JlcCAnJGRpc2snIHwgYXdrICd7c2l6ZSs9JDI7cGVyY2VudCs9JDU7fSBFTkR7cHJpbnQgcGVyY2VudH0n",
+   "warning_on": "out_larger_than_value",
+   "warning_value": 50
+}
+```
+
+Instead of ```command``` you can write ```command_base64```, useful for complex commands that would result in JSON parse errors.
+You can still use variables the same way.
 
 # hosts
 
@@ -119,6 +134,4 @@ Optionally ```unique_name``` can be used, if missing it will be generated.
 ```ìnfluxdb``` influxdb configuration  
 
 # todo
-- cpu usage command
-- memory usage command
 - check if process is running command
