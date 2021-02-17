@@ -119,3 +119,5 @@ Optionally ```unique_name``` can be used, if missing it will be generated.
 ```ìnfluxdb``` influxdb configuration  
 
 # todo
+- cpu usage command
+- memory usage command
