@@ -115,3 +115,8 @@ Optionally ```unique_name``` can be used, if missing it will be generated.
 ```checkTime```: time between batch of commands in seconds  
 ```mail``` mail configuration  
 ```ìnfluxdb``` influxdb configuration
+
+# todo
+
+- validate errors by running the commands multiple times
+- run smth like a debug command if error detected to include inside the message
