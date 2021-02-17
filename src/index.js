@@ -7,44 +7,89 @@ const send_notification = require('./notification/send_notification.js');
 const command_dir = 'commands/';
 const host_dir = 'hosts/';
 
-const config = JSON.parse(fs.readFileSync('config.json'))
+const config = JSON.parse(fs.readFileSync('config.json'));
 
-fs.readdir(command_dir, (err, files) => {
-  var commands = {};
+if(validate_config()){
+  console.log('Config validated!');
 
-  files.forEach(file => {
-    var command = JSON.parse(fs.readFileSync(command_dir + '/' + file));
+  fs.readdir(command_dir, (err, files) => {
+    var commands = {};
 
-    commands[command.name] = command;
-  });
-
-  console.log('Loaded commands');
-
-  var hosts = [];
-
-  fs.readdir(host_dir, (err, files) => {
     files.forEach(file => {
-      var host = JSON.parse(fs.readFileSync(host_dir + '/' + file));
+      var command = JSON.parse(fs.readFileSync(command_dir + '/' + file));
 
-      host.check_commands.forEach((command, i) => {
-        if(!command.unique_name){
-          host.check_commands[i].unique_name = command.command_name + '-' + uuidv4();
-        }
-      });
-
-      hosts.push(host)
+      commands[command.name] = command;
     });
 
-    console.log('Loaded hosts');
+    console.log('Loaded commands');
 
-    setInterval(()=>{
-      hosts.forEach(host => {
-        console.log('Checking: ' + host.name);
+    var hosts = [];
 
-        run_host_commands(host, commands, (host, check_command, state, message)=>{
-          send_notification(config, host, check_command, state, message);
+    fs.readdir(host_dir, (err, files) => {
+      files.forEach(file => {
+        var host = JSON.parse(fs.readFileSync(host_dir + '/' + file));
+
+        host.check_commands.forEach((command, i) => {
+          if(!command.unique_name){
+            host.check_commands[i].unique_name = command.command_name + '-' + uuidv4();
+          }
         });
+
+        hosts.push(host)
       });
-    }, 1000*config.checkTime);
-  })
-});
+
+      console.log('Loaded hosts');
+
+      setInterval(()=>{
+        hosts.forEach(host => {
+          console.log('Checking: ' + host.name);
+
+          run_host_commands(config, host, commands, (host, check_command, state, message)=>{
+            send_notification(config, host, check_command, state, message);
+          });
+        });
+      }, 1000*config.check_time);
+    })
+  });
+}else{
+  console.log('Config validation failed!');
+}
+
+function validate_config(){
+  if(config){
+    if(!config.reoccurring_error_message_time){
+      console.log('reoccurring_error_message_time missing in config');
+      return false;
+    }
+
+    if(!config.reoccurring_warning_message_time){
+      console.log('reoccurring_warning_message_time missing in config');
+      return false;
+    }
+
+    if(!config.check_time){
+      console.log('check_time missing in config');
+      return false;
+    }
+
+    if(!config.command_timeout){
+      console.log('command_timeout missing in config');
+      return false;
+    }
+
+    if(!config.validate_error){
+      console.log('validate_error missing in config');
+      return false;
+    }
+
+    if((config.command_timeout * config.validate_error) > config.check_time){
+      console.log('command_timeout*validate_error cannot be bigger than check_time!');
+      return false;
+    }
+
+    return true;
+  }else{
+    console.log('config.json not found!');
+    return false;
+  }
+}

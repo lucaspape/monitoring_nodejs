@@ -9,7 +9,7 @@ module.exports = function (config, notify, host, check_command, state, message){
 
         mail_messages[host.name][check_command.unique_name].lastOccurring = Date.now();
 
-        if(((Date.now() - mail_messages[host.name][check_command.unique_name].lastNotification) >= 60000*config.reoccurringErrorMessageTime && state == 'error') || ((Date.now() - mail_messages[host.name][check_command.unique_name].lastNotification) >= 60000*config.reoccurringWarningMessageTime && state == 'warning') || mail_messages[host.name][check_command.unique_name].lastState !== state){
+        if(((Date.now() - mail_messages[host.name][check_command.unique_name].lastNotification) >= 60000*config.reoccurring_error_message_time && state == 'error') || ((Date.now() - mail_messages[host.name][check_command.unique_name].lastNotification) >= 60000*config.reoccurring_warning_message_time && state == 'warning') || mail_messages[host.name][check_command.unique_name].lastState !== state){
           mail_messages[host.name][check_command.unique_name].lastNotification = Date.now();
 
           send_email(config, notify, host, check_command, 'REOCCURRING', state, message, mail_messages[host.name][check_command.unique_name]);

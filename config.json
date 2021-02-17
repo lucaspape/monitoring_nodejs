@@ -1,7 +1,9 @@
 {
-  "reoccurringErrorMessageTime": 60,
-  "reoccurringWarningMessageTime": 1440,
-  "checkTime": 20,
+  "reoccurring_error_message_time": 60,
+  "reoccurring_warning_message_time": 1440,
+  "check_time": 60,
+  "command_timeout": 10,
+  "validate_error": 3,
   "mail": {
     "service": "gmail",
     "auth": {

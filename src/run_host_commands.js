@@ -1,6 +1,6 @@
 const { exec } = require("child_process");
 
-module.exports = function (host, commands, callback){
+module.exports = function (config, host, commands, callback){
   host.check_commands.forEach(check_command => {
     if(!commands[check_command.command_name]){
       console.log('Could not find command: ' + check_command.command_name);
@@ -29,7 +29,7 @@ module.exports = function (host, commands, callback){
       if(!has_required_vars){
         callback();
       }else{
-        exec_command(run_command, 3, (result) => {
+        exec_command(run_command, config.validate_error, config.command_timeout, (result) => {
           var error_or_warning = check_for_method(result.error, result.stderr, result.stdout, 'error', command.failure_on, command.failure_value);
 
           if(!error_or_warning){
@@ -47,7 +47,7 @@ module.exports = function (host, commands, callback){
           }
 
           if(debug_command){
-            exec_command(debug_command, 1, (result)=>{
+            exec_command(debug_command, 1, config.command_timeout, (result)=>{
               callback(host, check_command, error_or_warning.state, error_or_warning.message + '\n\nDebug information:\n\n' + 'stdout:\n' +  result.stdout + 'stderr:\n' + result.stderr + '\n');
             });
           }else{
@@ -59,7 +59,7 @@ module.exports = function (host, commands, callback){
   });
 }
 
-function exec_command(command, runs, callback){
+function exec_command(command, runs, timeout, callback){
   var i = 0;
 
   var lastError = '';
@@ -68,7 +68,7 @@ function exec_command(command, runs, callback){
 
   var command_callback = function(){
     if(i < runs){
-      exec('timeout 10 bash -c "' + command + '"', (error, stdout, stderr) => {
+      exec('timeout ' + timeout + ' bash -c "' + command + '"', (error, stdout, stderr) => {
         if(error || stderr){
           i++;
 
