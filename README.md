@@ -113,7 +113,7 @@ Optionally ```unique_name``` can be used, if missing it will be generated.
 ```reoccurring_error_message_time```: time between two error messages (that resulted from the same command) in minutes  
 ```reoccurring_warning_message_time```: time between two warning messages (that resulted from the same command) in minutes  
 ```check_time```: time between batch of commands in seconds  
-```command_timeout```: timeout of single command  
+```command_timeout```: timeout of single command in seconds  
 ```validate_error```: retries if command returns error  
 ```mail``` mail configuration  
 ```ìnfluxdb``` influxdb configuration  
