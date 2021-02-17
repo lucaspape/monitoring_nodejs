@@ -139,3 +139,4 @@ Optionally ```unique_name``` can be used, if missing it will be generated.
 
 # todo
 - check if process is running command
+- check if docker container is running
