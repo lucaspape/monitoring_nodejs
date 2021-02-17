@@ -104,7 +104,7 @@ Every host must have a unique ```name```, a ```notify``` array and a ```check_co
 The ```notify``` array contains methods on how to notify the user. Every object in the array must have a ```how``` (currently ```email``` or ```influx```) and optionally an extra ```vars``` array.  
 
 The ```check_commands``` array contains the commands that will be run to check system health.  
-Every command must have a ```command_name```, this must be the same as the command name declared in the command.  
+Every command must have a ```command_name```, this must be the same as the command ```name``` declared in the command.  
 Optionally it can have a ```vars``` object for variables.  
 Optionally ```unique_name``` can be used, if missing it will be generated.
 
