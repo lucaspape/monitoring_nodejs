@@ -46,6 +46,15 @@
       },
       {
          "command_name":"check_total_cpu_usage"
+      },
+      {
+         "command_name":"check_total_memory_usage"
+      },
+      {
+         "command_name":"check_diskspace_usage",
+         "vars":{
+           "disk": "sda3"
+         }
       }
    ]
 }

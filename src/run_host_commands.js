@@ -1,4 +1,3 @@
-'use strict';
 const { exec } = require("child_process");
 
 module.exports = function (config, host, commands, callback){
@@ -14,7 +13,7 @@ module.exports = function (config, host, commands, callback){
 
       if(!run_command){
         if(command.command_base64){
-          run_command = (new Buffer(command.command_base64, 'base64')).toString('ascii');
+          run_command = (Buffer.from(command.command_base64, 'base64')).toString('ascii');
         }
       }
 
@@ -22,7 +21,7 @@ module.exports = function (config, host, commands, callback){
 
       if(!debug_command){
         if(command.debug_command_base64){
-          debug_command = (new Buffer(command.debug_command_base64, 'base64')).toString('ascii');
+          debug_command = (Buffer.from(command.debug_command_base64, 'base64')).toString('ascii');
         }
       }
 

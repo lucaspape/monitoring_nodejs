@@ -1,0 +1,8 @@
+{
+   "name":"check_total_memory_usage",
+   "required_vars":[
+   ],
+   "command_base64":"ZnJlZSB8IGF3ayAnL01lbS97cHJpbnRmKCIlLjJmIiksICQzLyQyKjEwMH0nIHwgcmV2IHwgY3V0IC1jIDItIHwgcmV2",
+   "warning_on": "out_larger_than_value",
+   "warning_value": 70
+}
