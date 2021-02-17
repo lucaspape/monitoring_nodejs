@@ -6,7 +6,7 @@ There are hosts and commands to configure, the hosts will use the commands to ch
 
 # how to install
 
-clone this repo  
+clone this repo: run ```git clone https://github.com/lucaspape/monitoring_nodejs.git```
 
 run ```ǹpm install```
 
