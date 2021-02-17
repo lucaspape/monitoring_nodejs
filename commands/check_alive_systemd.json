@@ -1,5 +1,5 @@
 {
-   "name":"check_systemd_alive",
+   "name":"check_alive_systemd",
    "required_vars":[
      "service"
    ],
