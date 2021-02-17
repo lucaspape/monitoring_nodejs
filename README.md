@@ -120,3 +120,4 @@ Optionally ```unique_name``` can be used, if missing it will be generated.
 
 - validate errors by running the commands multiple times
 - run smth like a debug command if error detected to include inside the message
+- refuse to run if delay between batch of commands is smaller than timeout of command
