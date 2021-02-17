@@ -60,11 +60,11 @@ module.exports = function (config, host, commands, callback){
           }
 
           if(debug_command){
-            exec_command(debug_command, 1, config.command_timeout, (result)=>{
-              callback(host, check_command, error_or_warning.state, error_or_warning.message + '\n\nDebug information:\n\n' + 'stdout:\n' +  result.stdout + 'stderr:\n' + result.stderr + '\n');
+            exec_command(debug_command, 1, config.command_timeout, (debug_result)=>{
+              callback(host, check_command, error_or_warning.state, error_or_warning.message + '\n\nDebug information:\n\n' + 'stdout:\n' +  debug_result.stdout + 'stderr:\n' + debug_result.stderr + '\n', result.stdout);
             });
           }else{
-            callback(host, check_command, error_or_warning.state, error_or_warning.message);
+            callback(host, check_command, error_or_warning.state, error_or_warning.message, result.stdout);
           }
         });
       }

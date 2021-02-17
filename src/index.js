@@ -44,8 +44,8 @@ if(validate_config()){
         hosts.forEach(host => {
           console.log('Checking: ' + host.name);
 
-          run_host_commands(config, host, commands, (host, check_command, state, message)=>{
-            send_notification(config, host, check_command, state, message);
+          run_host_commands(config, host, commands, (host, check_command, state, message, stdout)=>{
+            send_notification(config, host, check_command, state, message, stdout);
           });
         });
       }, 1000*config.check_time);
