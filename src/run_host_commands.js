@@ -23,8 +23,22 @@ module.exports = function (host, commands, callback){
       if(!has_required_vars){
         callback();
       }else{
-        exec('timeout 10 bash -c "' + run_command + '"', (error, stdout, stderr) => {
-          var error_or_warning = check_for_error(command, error, stderr, stdout);
+        exec_command(run_command, 3, (result) => {
+          var error_or_warning = check_for_method(result.error, result.stderr, result.stdout, 'error', command.failure_on, command.failure_value);
+
+          if(!error_or_warning){
+            error_or_warning = check_for_method(result.error, result.stderr, result.stdout, 'warning', command.warning_on, command.warning_value);
+          }
+
+          if(!error_or_warning){
+            if(result.error){
+              error_or_warning = { state: 'error', message: result.error};
+            }else if(result.stderr){
+              error_or_warning = { state: 'error', message: result.stderr};
+            }else{
+              error_or_warning = { state: 'ok', message: result.stdout};
+            }
+          }
 
           callback(host, check_command, error_or_warning.state, error_or_warning.message);
         });
@@ -33,86 +47,73 @@ module.exports = function (host, commands, callback){
   });
 }
 
-function check_for_error(command, error, stderr, stdout){
-  switch(command.failure_on){
-    case 'out_larger_than_value':
-      if(stdout > command.failure_value){
-        return({ state: 'error', message: stdout + ' is bigger than failure value ' + command.failure_value});
-      }else{
-        return({ state: 'ok'});
-      }
+function exec_command(command, validation_runs, callback){
+  var i = 0;
 
-      break;
-    case 'out_smaller_than_value':
-      if(stdout < command.failure_value){
-        return({ state: 'error', message: stdout + ' is smaller than failure value ' + command.failure_value});
-      }else{
-        return({ state: 'ok'});
-      }
+  var lastError = '';
+  var lastStderr = '';
+  var lastStdout = '';
 
-      break;
-    case 'value_exact_out':
-      if(command.failure_value == stdout){
-        return({ state: 'error', message: stdout + ' is exactly failure value ' + command.failure_value});
-      }else{
-        return({ state: 'ok'});
-      }
+  var command_callback = function(){
+    if(i < validation_runs){
+      exec('timeout 10 bash -c "' + command + '"', (error, stdout, stderr) => {
+        if(error || stderr){
+          i++;
 
-      break;
-    case 'value_not_exact_out':
-      if(command.failure_value != stdout){
-        return({ state: 'error', message: stdout + ' is not failure value ' + command.failure_value});
-      }else{
-        return({ state: 'ok'});
-      }
+          lastError = error;
+          lastStderr = stderr;
+          lastStdout = stdout;
 
-      break;
-    default:
-      return check_for_warning(command, error, stderr, stdout);
+          command_callback();
+        }else{
+          //NO MORE error
+          callback({error: error, stdout:stdout, stderr:stderr});
+        }
+      });
+    }else{
+      //MULTIPLE TRIES FAILED
+      callback({error: lastError, stdout:lastStderr, stderr:lastStdout});
+    }
   }
+
+  command_callback();
 }
 
-function check_for_warning(command, error, stderr, stdout){
-  switch(command.warning_on){
+function check_for_method(error, stderr, stdout, failure_state, command_method, command_value){
+  switch(command_method){
     case 'out_larger_than_value':
-      if(stdout > command.warning_value){
-        return({ state: 'warning', message: stdout + ' is bigger than warning value ' + command.warning_value});
+      if(stdout > command_value){
+        return({ state: failure_state, message: stdout + ' is bigger than ' + failure_state + ' value ' + command.failure_value});
       }else{
         return({ state: 'ok'});
       }
 
       break;
     case 'out_smaller_than_value':
-      if(stdout < command.warning_value){
-        return({ state: 'warning', message: stdout + ' is smaller than warning value ' + command.warning_value});
+      if(stdout < command_value){
+        return({ state: failure_state, message: stdout + ' is smaller than ' + failure_state + ' value ' + command.failure_value});
       }else{
         return({ state: 'ok'});
       }
 
       break;
     case 'value_exact_out':
-      if(command.warning_value == stdout){
-        return({ state: 'warning', message: stdout + ' is exactly warning value ' + command.warning_value});
+      if(command_value == stdout){
+        return({ state: failure_state, message: stdout + ' is exactly ' + failure_state + ' value ' + command.failure_value});
       }else{
         return({ state: 'ok'});
       }
 
       break;
     case 'value_not_exact_out':
-      if(command.warning_value != stdout){
-        return({ state: 'warning', message: stdout + ' is not warning value ' + command.warning_value});
+      if(command_value != stdout){
+        return({ state: failure_state, message: stdout + ' is not ' + failure_state + ' value ' + command.failure_value});
       }else{
         return({ state: 'ok'});
       }
 
       break;
     default:
-      if(error){
-        return({ state: 'error', message: error});
-      }else if(stderr){
-        return({ state: 'error', message: stderr});
-      }else{
-        return({ state: 'ok', message: stdout});
-      }
+      return undefined;
   }
 }

@@ -1,6 +1,6 @@
 {
   "reoccurringErrorMessageTime": 60,
-  "reoccurringWarningMessageTime": 60*24,
+  "reoccurringWarningMessageTime": 1440,
   "checkTime": 20,
   "mail": {
     "service": "gmail",
