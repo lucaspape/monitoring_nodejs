@@ -43,6 +43,9 @@
          "vars":{
            "service": "sshd"
          }
+      },
+      {
+         "command_name":"check_total_cpu_usage"
       }
    ]
 }
