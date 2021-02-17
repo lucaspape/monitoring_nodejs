@@ -3,5 +3,6 @@
    "required_vars":[],
    "command":"yay -Qu | wc -l",
    "warning_on": "out_larger_than_value",
-   "warning_value": 0
+   "warning_value": 0,
+   "debug_command": "yay -Qu"
 }
