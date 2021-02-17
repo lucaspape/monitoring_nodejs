@@ -20,14 +20,10 @@ module.exports = function(config, notify, host, check_command, state, message, s
 
   var out_float = 0.0;
 
-  if(!isNaN(stdout)){
-    out_float = stdout.match(/\d/g);
+  out_float = parseFloat(stdout);
 
-    if(out_float){
-      out_float = out_float.join("");
-    }else{
-      out_float = 0.0;
-    }
+  if(isNaN(out_float)){
+    out_float = 0.0;
   }
 
   influxdb.writePoints([
