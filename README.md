@@ -121,3 +121,4 @@ Optionally ```unique_name``` can be used, if missing it will be generated.
 # todo
 - cpu usage command
 - memory usage command
+- check if process is running command
