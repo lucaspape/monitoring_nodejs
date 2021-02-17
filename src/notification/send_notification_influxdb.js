@@ -8,7 +8,7 @@ module.exports = function(config, notify, host, check_command, state, message, s
         fields: {
           state: Influx.FieldType.STRING,
           message: Influx.FieldType.STRING,
-          out_int: Influx.FieldType.INTEGER,
+          out_float: Influx.FieldType.FLOAT,
           stdout: Influx.FieldType.STRING
         },
         tags: [
@@ -18,17 +18,23 @@ module.exports = function(config, notify, host, check_command, state, message, s
     ]
   });
 
-  var out_int = 0;
+  var out_float = 0.0;
 
   if(!isNaN(stdout)){
-    out_int = stdout;
+    out_float = stdout.match(/\d/g);
+
+    if(out_float){
+      out_float = out_float.join("");
+    }else{
+      out_float = 0.0;
+    }
   }
 
   influxdb.writePoints([
     {
       measurement: check_command.command_name,
       tags: { host: host.name },
-      fields: { state:state, message:message, out_int:out_int, stdout:stdout }
+      fields: { state:state, message:message, out_float:out_float, stdout:stdout }
     }
   ]).catch(err => {
     console.log('Could not save to influxdb');
