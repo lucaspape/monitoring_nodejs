@@ -1,8 +1,8 @@
 {
    "name":"check_updates_apt",
    "required_vars":[],
-   "command":"apt list --upgradeable | wc -l",
+   "command_base64":"YXB0LWdldCAtLWp1c3QtcHJpbnQgdXBncmFkZSAyPiYxIHwgcGVybCAtbmUgJ2lmICgvSW5zdFxzKFtcdyxcLSxcZCxcLix+LDosXCtdKylcc1xbKFtcdyxcLSxcZCxcLix+LDosXCtdKylcXVxzXCgoW1x3LFwtLFxkLFwuLH4sOixcK10rKVwpPyAvaSkge3ByaW50ICJQUk9HUkFNOiAkMSBJTlNUQUxMRUQ6ICQyIEFWQUlMQUJMRTogJDNcbiJ9JyB8IHdjIC1s",
    "warning_on": "out_larger_than_value",
-   "warning_value": 1,
-   "debug_command": "apt list --upgradeable"
+   "warning_value": 0,
+   "debug_command_base64": "YXB0LWdldCAtLWp1c3QtcHJpbnQgdXBncmFkZSAyPiYxIHwgcGVybCAtbmUgJ2lmICgvSW5zdFxzKFtcdyxcLSxcZCxcLix+LDosXCtdKylcc1xbKFtcdyxcLSxcZCxcLix+LDosXCtdKylcXVxzXCgoW1x3LFwtLFxkLFwuLH4sOixcK10rKVwpPyAvaSkge3ByaW50ICJQUk9HUkFNOiAkMSBJTlNUQUxMRUQ6ICQyIEFWQUlMQUJMRTogJDNcbiJ9JyA="
 }
