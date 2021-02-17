@@ -12,7 +12,8 @@ module.exports = function(config, notify, host, check_command, state, message, s
           stdout: Influx.FieldType.STRING
         },
         tags: [
-          'host'
+          'host',
+          'unique_name'
         ]
       }
     ]
@@ -29,7 +30,7 @@ module.exports = function(config, notify, host, check_command, state, message, s
   influxdb.writePoints([
     {
       measurement: check_command.command_name,
-      tags: { host: host.name },
+      tags: { host: host.name, unique_name: check_command.unique_name },
       fields: { state:state, message:message, out_float:out_float, stdout:stdout }
     }
   ]).catch(err => {
