@@ -82,8 +82,8 @@ function validate_config(){
       return false;
     }
 
-    if((config.command_timeout * config.validate_error) > config.check_time){
-      console.log('command_timeout*validate_error cannot be bigger than check_time!');
+    if(((config.command_timeout) * config.validate_error + config.command_dalay) > config.check_time){
+      console.log('(command_timeout)*validate_error+command_dalay cannot be bigger than check_time!');
       return false;
     }
 

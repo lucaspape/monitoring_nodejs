@@ -42,7 +42,7 @@ module.exports = function (config, host, commands, callback){
       if(!has_required_vars){
         callback();
       }else{
-        exec_command(run_command, config.validate_error, config.command_timeout, (result) => {
+        exec_command(run_command, config.command_dalay,config.validate_error, config.command_timeout, (result) => {
           var error_or_warning = check_for_method(result.error, result.stderr, result.stdout, 'error', command.failure_on, command.failure_value);
 
           if(!error_or_warning){
@@ -60,7 +60,7 @@ module.exports = function (config, host, commands, callback){
           }
 
           if(debug_command){
-            exec_command(debug_command, 1, config.command_timeout, (debug_result)=>{
+            exec_command(debug_command, 0, 1, config.command_timeout, (debug_result)=>{
               callback(host, check_command, error_or_warning.state, error_or_warning.message + '\n\nDebug information:\n\n' + 'stdout:\n' +  debug_result.stdout + 'stderr:\n' + debug_result.stderr + '\n', result.stdout);
             });
           }else{
@@ -72,36 +72,38 @@ module.exports = function (config, host, commands, callback){
   });
 }
 
-function exec_command(command, runs, timeout, callback){
-  var i = 0;
+function exec_command(command, command_dalay, runs, timeout, callback){
+  setTimeout(()=>{
+    var i = 0;
 
-  var lastError = '';
-  var lastStderr = '';
-  var lastStdout = '';
+    var lastError = '';
+    var lastStderr = '';
+    var lastStdout = '';
 
-  var command_callback = function(){
-    if(i < runs){
-      exec('timeout ' + timeout + ' ' + command, (error, stdout, stderr) => {
-        if(error || stderr){
-          i++;
+    var command_callback = function(){
+      if(i < runs){
+        exec('timeout ' + timeout + ' ' + command, (error, stdout, stderr) => {
+          if(error || stderr){
+            i++;
 
-          lastError = error;
-          lastStderr = stderr;
-          lastStdout = stdout;
+            lastError = error;
+            lastStderr = stderr;
+            lastStdout = stdout;
 
-          command_callback();
-        }else{
-          //NO MORE error
-          callback({error: error, stdout:stdout, stderr:stderr});
-        }
-      });
-    }else{
-      //MULTIPLE TRIES FAILED
-      callback({error: lastError, stdout:lastStderr, stderr:lastStdout});
+            command_callback();
+          }else{
+            //NO MORE error
+            callback({error: error, stdout:stdout, stderr:stderr});
+          }
+        });
+      }else{
+        //MULTIPLE TRIES FAILED
+        callback({error: lastError, stdout:lastStderr, stderr:lastStdout});
+      }
     }
-  }
 
-  command_callback();
+    command_callback();
+  });
 }
 
 function check_for_method(error, stderr, stdout, failure_state, command_method, command_value){
