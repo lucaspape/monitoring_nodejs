@@ -38,8 +38,8 @@
          "command_name":"check_procs"
       },
       {
-         "command_name":"check_systemd_alive",
-         "unique_name": "check_systemd_sshd",
+         "command_name":"check_alive_systemd",
+         "unique_name": "check_alive_sshd",
          "vars":{
            "service": "sshd"
          }
