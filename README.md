@@ -12,7 +12,7 @@ run ```ǹpm install```
 
 # how to run
 
-run ```node src/index.js```  
+run ```npm start```  
 
 # commands
 ```
