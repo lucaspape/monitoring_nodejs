@@ -1,75 +1,87 @@
 const { exec } = require("child_process");
 
 module.exports = function (config, host, commands, callback){
-  host.check_commands.forEach(check_command => {
-    if(!commands[check_command.command_name]){
-      console.log('Could not find command: ' + check_command.command_name);
-    }else{
-      console.log('Running command: ' + check_command.command_name);
+  var i = 0;
 
-      var command = commands[check_command.command_name];
+  var loop = function(){
+    if(i < host.check_commands.length){
+      var check_command = host.check_commands[i];
 
-      var run_command = command.command;
-
-      if(!run_command){
-        if(command.command_base64){
-          run_command = (Buffer.from(command.command_base64, 'base64')).toString('ascii');
-        }
-      }
-
-      var debug_command = command.debug_command;
-
-      if(!debug_command){
-        if(command.debug_command_base64){
-          debug_command = (Buffer.from(command.debug_command_base64, 'base64')).toString('ascii');
-        }
-      }
-
-      var has_required_vars = true;
-
-      command.required_vars.forEach((required_var) => {
-        if(!check_command.vars[required_var]){
-          has_required_vars = false;
-        }else{
-          run_command = run_command.replace('$' + required_var, check_command.vars[required_var]);
-
-          if(debug_command){
-            debug_command = debug_command.replace('$' + required_var, check_command.vars[required_var]);
-          }
-        }
-      });
-
-      if(!has_required_vars){
-        callback();
+      if(!commands[check_command.command_name]){
+        console.log('Could not find command: ' + check_command.command_name);
       }else{
-        exec_command(run_command, config.command_dalay,config.validate_error, config.command_timeout, (result) => {
-          var error_or_warning = check_for_method(result.error, result.stderr, result.stdout, 'error', command.failure_on, command.failure_value);
+        console.log('Running command: ' + check_command.command_name);
 
-          if(!error_or_warning){
-            error_or_warning = check_for_method(result.error, result.stderr, result.stdout, 'warning', command.warning_on, command.warning_value);
+        var command = commands[check_command.command_name];
+
+        var run_command = command.command;
+
+        if(!run_command){
+          if(command.command_base64){
+            run_command = (Buffer.from(command.command_base64, 'base64')).toString('ascii');
           }
+        }
 
-          if(!error_or_warning){
-            if(result.error){
-              error_or_warning = { state: 'error', message: result.error};
-            }else if(result.stderr){
-              error_or_warning = { state: 'error', message: result.stderr};
-            }else{
-              error_or_warning = { state: 'ok', message: result.stdout};
+        var debug_command = command.debug_command;
+
+        if(!debug_command){
+          if(command.debug_command_base64){
+            debug_command = (Buffer.from(command.debug_command_base64, 'base64')).toString('ascii');
+          }
+        }
+
+        var has_required_vars = true;
+
+        command.required_vars.forEach((required_var) => {
+          if(!check_command.vars[required_var]){
+            has_required_vars = false;
+          }else{
+            run_command = run_command.replace('$' + required_var, check_command.vars[required_var]);
+
+            if(debug_command){
+              debug_command = debug_command.replace('$' + required_var, check_command.vars[required_var]);
             }
           }
-
-          if(debug_command){
-            exec_command(debug_command, 0, 1, config.command_timeout, (debug_result)=>{
-              callback(host, check_command, error_or_warning.state, error_or_warning.message + '\n\nDebug information:\n\n' + 'stdout:\n' +  debug_result.stdout + 'stderr:\n' + debug_result.stderr + '\n', result.stdout);
-            });
-          }else{
-            callback(host, check_command, error_or_warning.state, error_or_warning.message, result.stdout);
-          }
         });
+
+        if(!has_required_vars){
+          callback();
+        }else{
+          exec_command(run_command, config.command_dalay,config.validate_error, config.command_timeout, (result) => {
+            var error_or_warning = check_for_method(result.error, result.stderr, result.stdout, 'error', command.failure_on, command.failure_value);
+
+            if(!error_or_warning){
+              error_or_warning = check_for_method(result.error, result.stderr, result.stdout, 'warning', command.warning_on, command.warning_value);
+            }
+
+            if(!error_or_warning){
+              if(result.error){
+                error_or_warning = { state: 'error', message: result.error};
+              }else if(result.stderr){
+                error_or_warning = { state: 'error', message: result.stderr};
+              }else{
+                error_or_warning = { state: 'ok', message: result.stdout};
+              }
+            }
+
+            if(debug_command){
+              exec_command(debug_command, 0, 1, config.command_timeout, (debug_result)=>{
+                callback(host, check_command, error_or_warning.state, error_or_warning.message + '\n\nDebug information:\n\n' + 'stdout:\n' +  debug_result.stdout + 'stderr:\n' + debug_result.stderr + '\n', result.stdout);
+              });
+            }else{
+              callback(host, check_command, error_or_warning.state, error_or_warning.message, result.stdout);
+            }
+
+            i++;
+            loop();
+
+          });
+        }
       }
     }
-  });
+  }
+
+  loop();
 }
 
 function exec_command(command, command_dalay, runs, timeout, callback){
