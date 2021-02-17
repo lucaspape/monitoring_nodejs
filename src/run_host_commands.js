@@ -1,3 +1,4 @@
+'use strict';
 const { exec } = require("child_process");
 
 module.exports = function (config, host, commands, callback){
@@ -10,7 +11,20 @@ module.exports = function (config, host, commands, callback){
       var command = commands[check_command.command_name];
 
       var run_command = command.command;
+
+      if(!run_command){
+        if(command.command_base64){
+          run_command = (new Buffer(command.command_base64, 'base64')).toString('ascii');
+        }
+      }
+
       var debug_command = command.debug_command;
+
+      if(!debug_command){
+        if(command.debug_command_base64){
+          debug_command = (new Buffer(command.debug_command_base64, 'base64')).toString('ascii');
+        }
+      }
 
       var has_required_vars = true;
 
@@ -68,7 +82,7 @@ function exec_command(command, runs, timeout, callback){
 
   var command_callback = function(){
     if(i < runs){
-      exec('timeout ' + timeout + ' bash -c "' + command + '"', (error, stdout, stderr) => {
+      exec('timeout ' + timeout + ' ' + command, (error, stdout, stderr) => {
         if(error || stderr){
           i++;
 
