@@ -110,14 +110,12 @@ Optionally ```unique_name``` can be used, if missing it will be generated.
 
 # config
 
-```reoccurringErrorMessageTime```: time between two error messages (that resulted from the same command) in minutes  
-```reoccurringWarningMessageTime```: time between two warning messages (that resulted from the same command) in minutes  
-```checkTime```: time between batch of commands in seconds  
+```reoccurring_error_message_time```: time between two error messages (that resulted from the same command) in minutes  
+```reoccurring_warning_message_time```: time between two warning messages (that resulted from the same command) in minutes  
+```check_time```: time between batch of commands in seconds  
+```command_timeout```: timeout of single command
+```validate_error```: retries if command returns error
 ```mail``` mail configuration  
 ```ìnfluxdb``` influxdb configuration
 
 # todo
-
-- validate errors by running the commands multiple times
-- run smth like a debug command if error detected to include inside the message
-- refuse to run if delay between batch of commands is smaller than timeout of command
