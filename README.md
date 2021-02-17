@@ -28,6 +28,8 @@ run ```npm start```
 Every command must have a unique ```name```, a ```required_vars``` array (can be empty) and the actual ```command```.  
 You can specify vars in ```required_vars``` and then use these vars in ```command``` by using a ```$```.
 
+##
+
 __By default a command is considered failed if it outputs an error into stderr.__
 
 You can change it like this:
@@ -64,6 +66,8 @@ You can do the same thing with warnings:
 ```
   
 Available ```warning_on``` methods: same as ```error_on``` methods  
+
+##
   
 ```
 {
