@@ -142,7 +142,7 @@ The ```notify``` array contains methods on how to notify the user. Every object 
 The ```check_commands``` array contains the commands that will be run to check system health.  
 Every command must have a ```command_name```, this must be the same as the command ```name``` declared in the command.  
 Optionally it can have a ```vars``` object for variables.  
-Optionally ```unique_name``` can be used, if missing it will be generated.
+Optionally ```unique_name``` can be used, if missing it will be generated from the ```vars``` array or random. If you have passwords or other important information in ```vars``` you should specify ```unique_name``` because it is shown in notifications.  
 
 # config
 
