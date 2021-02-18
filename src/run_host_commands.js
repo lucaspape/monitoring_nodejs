@@ -14,78 +14,52 @@ module.exports = function (config, host, commands, notification_callback, callba
 
         var command = commands[check_command.command_name];
 
-        var run_command = command.command;
+        command = parse_base64_command(command);
 
-        if(!run_command){
-          if(command.command_base64){
-            run_command = (Buffer.from(command.command_base64, 'base64')).toString('ascii');
-          }
-        }
+        command = parse_required_vars_command(command, check_command);
 
-        var debug_command = command.debug_command;
-
-        if(!debug_command){
-          if(command.debug_command_base64){
-            debug_command = (Buffer.from(command.debug_command_base64, 'base64')).toString('ascii');
-          }
-        }
-
-        var has_required_vars = true;
-
-        command.required_vars.forEach((required_var) => {
-          if(!check_command.vars[required_var]){
-            has_required_vars = false;
-          }else{
-            run_command = run_command.replace('$' + required_var, check_command.vars[required_var]);
-
-            if(debug_command){
-              debug_command = debug_command.replace('$' + required_var, check_command.vars[required_var]);
-            }
-          }
-        });
-
-        if(!has_required_vars){
+        if(!command){
           console.log('Not enough vars for command!');
 
           i++;
           loop();
         }else{
-          exec_command(run_command, config.command_delay, config.validate_error, config.command_timeout, (result) => {
-            var error_or_warning = check_for_method(result.error, result.stderr, result.stdout, 'error', command.failure_on, command.failure_value);
+          exec_command(command.command, config.command_delay, config.validate_error, config.command_timeout, (result) => {
+            var error_or_warning = {};
 
-            if(!error_or_warning){
-              error_or_warning = check_for_method(result.error, result.stderr, result.stdout, 'warning', command.warning_on, command.warning_value);
-            }
-
-            if(!error_or_warning){
-              if(result.error){
-                error_or_warning = { state: 'error', message: result.error};
-              }else if(result.stderr){
-                error_or_warning = { state: 'error', message: result.stderr};
-              }else{
-                error_or_warning = { state: 'ok', message: result.stdout};
-              }
-            }
-
-            if(debug_command){
-              exec_command(debug_command, 0, 1, config.command_timeout, (debug_result)=>{
-                notification_callback(host, check_command, error_or_warning.state, error_or_warning.message + '\n\nDebug information:\n\n' + 'stdout:\n' +  debug_result.stdout + 'stderr:\n' + debug_result.stderr + '\n', result.stdout);
-              });
+            if(result.error){
+              error_or_warning = { state: 'error', message: result.error};
+            }else if(result.stderr){
+              error_or_warning = { state: 'error', message: result.stderr};
             }else{
-              if(command.multiple_lines_multiple_notifications){
-                const orig_unique_name = check_command.unique_name;
+              error_or_warning = check_for_method(result.error, result.stderr, result.stdout, 'error', command.failure_on, command.failure_value);
 
-                var lines = result.stdout.split('\n');
+              if(!error_or_warning){
+                error_or_warning = check_for_method(result.error, result.stderr, result.stdout, 'warning', command.warning_on, command.warning_value);
+              }
 
-                lines.forEach((line, k) => {
-                  check_command.unique_name = orig_unique_name + '-' + k;
+              if(!error_or_warning){
+                  //COMMAND IS STATE OK
+                  error_or_warning = { state: 'ok', message: result.stdout};
+              }
 
-                  notification_callback(host, check_command, error_or_warning.state, error_or_warning.message, line);
+              var debug_command_callback = function(){
+                if(command.multiple_lines_multiple_notifications){
+                  //send a notification for every line of stdout
+                  parse_multiline_stdout(host, check_command, result.stdout, error_or_warning, notification_callback);
+                }else{
+                  notification_callback(host, check_command, error_or_warning.state, error_or_warning.message, result.stdout);
+                }
+              }
 
-                  check_command.unique_name = orig_unique_name;
+              if(command.debug_command){
+                exec_command(command.debug_command, 0, 1, config.command_timeout, (debug_result)=>{
+                  error_or_warning.message += '\n\nDebug information:\n\n' + 'stdout:\n\n' +  debug_result.stdout + 'stderr:\n\n' + debug_result.stderr + '\n';
+
+                  debug_command_callback();
                 });
               }else{
-                notification_callback(host, check_command, error_or_warning.state, error_or_warning.message, result.stdout);
+                debug_command_callback();
               }
             }
 
@@ -101,6 +75,58 @@ module.exports = function (config, host, commands, notification_callback, callba
   }
 
   loop();
+}
+
+function parse_required_vars_command(command, check_command){
+  var has_required_vars = true;
+
+  command.required_vars.forEach((required_var) => {
+    if(!check_command.vars[required_var]){
+      has_required_vars = false;
+    }else{
+      command.command = command.command.replace('$' + required_var, check_command.vars[required_var]);
+
+      if(command.debug_command){
+        command.debug_command = command.debug_command.replace('$' + required_var, check_command.vars[required_var]);
+      }
+    }
+  });
+
+  if(has_required_vars){
+    return command;
+  }else{
+    return undefined;
+  }
+}
+
+function parse_multiline_stdout(host, check_command, stdout, error_or_warning, notification_callback){
+  const orig_unique_name = check_command.unique_name;
+
+  var lines = stdout.split('\n');
+
+  lines.forEach((line, k) => {
+    check_command.unique_name = orig_unique_name + '-' + k;
+
+    notification_callback(host, check_command, error_or_warning.state, error_or_warning.message, line);
+
+    check_command.unique_name = orig_unique_name;
+  });
+}
+
+function parse_base64_command(command){
+  if(!command.command){
+    if(command.command_base64){
+      command.command = (Buffer.from(command.command_base64, 'base64')).toString('ascii');
+    }
+  }
+
+  if(!command.debug_command){
+    if(command.debug_command_base64){
+      command.debug_command = (Buffer.from(command.debug_command_base64, 'base64')).toString('ascii');
+    }
+  }
+
+  return command;
 }
 
 function exec_command(command, command_delay, runs, timeout, callback){
