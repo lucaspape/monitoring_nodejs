@@ -3,7 +3,5 @@
    "required_vars":[
      "disk"
    ],
-   "command_base64":"ZGYgLWhsIHwgZ3JlcCAnJGRpc2snIHwgYXdrICd7c2l6ZSs9JDI7cGVyY2VudCs9JDU7fSBFTkR7cHJpbnQgcGVyY2VudH0n",
-   "warning_on": "out_larger_than_value",
-   "warning_value": 50
+   "command_base64":"ZGYgLWhsIHwgZ3JlcCAnJGRpc2snIHwgYXdrICd7c2l6ZSs9JDI7cGVyY2VudCs9JDU7fSBFTkR7cHJpbnQgcGVyY2VudH0n"
 }
