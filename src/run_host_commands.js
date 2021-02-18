@@ -55,7 +55,7 @@ module.exports = function (config, host, commands, notification_callback, callba
 
             if(command.debug_command){
               exec_command(command.debug_command, 0, 1, config.command_timeout, (debug_result)=>{
-                error_or_warning.message += '\n\nDebug information:\n\n' + 'stdout:\n\n' +  debug_result.stdout + 'stderr:\n\n' + debug_result.stderr + '\n';
+                error_or_warning.message += '\n\nDebug information:\n\n' + 'stdout:\n\n' +  debug_result.stdout + '\nstderr:\n\n' + debug_result.stderr + '\n';
 
                 debug_command_callback();
               });
