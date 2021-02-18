@@ -34,7 +34,7 @@ if(validate_config()){
 
         host.check_commands.forEach((command, i) => {
           if(!command.unique_name){
-            host.check_commands[i].unique_name = command.command_name + '-' + uuidv4();
+            host.check_commands[i].unique_name = generate_unique_name(command);
           }
         });
 
@@ -66,6 +66,20 @@ if(validate_config()){
   });
 }else{
   console.log('Config validation failed!');
+}
+
+function generate_unique_name(command){
+  var unique_name = command.command_name;
+
+  if(command.vars && Object.keys(command.vars).length > 0){
+    Object.keys(command.vars).forEach((key) => {
+      unique_name += '-' + command.vars[key];
+    });
+  }else{
+    unique_name += '-' + uuidv4();
+  }
+
+  return unique_name;
 }
 
 function validate_config(){

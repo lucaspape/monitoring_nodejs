@@ -14,7 +14,6 @@
    "check_commands":[
       {
          "command_name": "check_http",
-         "unique_name": "check_http_lucaspape",
          "vars":{
             "web_url":"https://lucaspape.de"
          }
@@ -39,7 +38,6 @@
       },
       {
          "command_name":"check_alive_systemd",
-         "unique_name": "check_alive_sshd",
          "vars":{
            "service": "sshd"
          }
