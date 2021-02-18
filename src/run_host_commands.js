@@ -100,16 +100,13 @@ function parse_required_vars_command(command, check_command){
 }
 
 function parse_multiline_stdout(host, check_command, stdout, error_or_warning, notification_callback){
-  const orig_unique_name = check_command.unique_name;
-
   var lines = stdout.split('\n');
 
   lines.forEach((line, k) => {
-    check_command.unique_name = orig_unique_name + '-' + k;
+    var modified_check_command = JSON.parse(JSON.stringify(check_command));
+    modified_check_command.unique_name = check_command.unique_name + '-' + k;
 
-    notification_callback(host, check_command, error_or_warning.state, error_or_warning.message, line);
-
-    check_command.unique_name = orig_unique_name;
+    notification_callback(host, modified_check_command, error_or_warning.state, error_or_warning.message, line);
   });
 }
 

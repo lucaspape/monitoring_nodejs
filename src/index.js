@@ -4,6 +4,9 @@ const { v4: uuidv4 } = require('uuid');
 const run_host_commands = require('./run_host_commands.js');
 const send_notification = require('./notification/send_notification.js');
 
+const notification_thread = require('./notification/notification_thread.js');
+notification_thread.init_vars();
+
 const command_dir = 'commands/';
 const host_dir = 'hosts/';
 
@@ -41,12 +44,16 @@ if(validate_config()){
       console.log('Loaded hosts');
 
       var loop = function(){
+        //SEND OUT NOTIFICATIONS
+        notification_thread.thread();
+        console.log('Sent notifications!');
+
         setTimeout(()=>{
           hosts.forEach(host => {
             console.log('Checking: ' + host.name);
 
             run_host_commands(config, host, commands, (host, check_command, state, message, stdout)=>{
-              send_notification(config, host, check_command, state, message, stdout);
+              send_notification(notification_thread, config, host, check_command, state, message, stdout);
             }, ()=>{
               loop();
             });

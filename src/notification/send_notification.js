@@ -1,14 +1,11 @@
-const send_notification_email = require('./send_notification_email.js');
-const send_notification_influxdb = require('./send_notification_influxdb.js');
-
-module.exports = function (config, host, check_command, state, message, stdout){
+module.exports = function (notification_thread, config, host, check_command, state, message, stdout){
   host.notify.forEach((notify) => {
     switch(notify.how){
       case 'email':
-        send_notification_email(config, notify, host, check_command, state, message);
+        notification_thread.add_email({config, notify, host, check_command, state, message});
         break;
       case 'influx':
-        send_notification_influxdb(config, notify, host, check_command, state, message, stdout);
+        notification_thread.add_influx({config, notify, host, check_command, state, message, stdout});
         break;
       default:
         console.log('Cant find notification type ' + notify.how);
