@@ -42,25 +42,25 @@ module.exports = function (config, host, commands, notification_callback, callba
                   //COMMAND IS STATE OK
                   error_or_warning = { state: 'ok', message: result.stdout};
               }
+            }
 
-              var debug_command_callback = function(){
-                if(command.multiple_lines_multiple_notifications){
-                  //send a notification for every line of stdout
-                  parse_multiline_stdout(host, check_command, result.stdout, error_or_warning, notification_callback);
-                }else{
-                  notification_callback(host, check_command, error_or_warning.state, error_or_warning.message, result.stdout);
-                }
-              }
-
-              if(command.debug_command){
-                exec_command(command.debug_command, 0, 1, config.command_timeout, (debug_result)=>{
-                  error_or_warning.message += '\n\nDebug information:\n\n' + 'stdout:\n\n' +  debug_result.stdout + 'stderr:\n\n' + debug_result.stderr + '\n';
-
-                  debug_command_callback();
-                });
+            var debug_command_callback = function(){
+              if(command.multiple_lines_multiple_notifications){
+                //send a notification for every line of stdout
+                parse_multiline_stdout(host, check_command, result.stdout, error_or_warning, notification_callback);
               }else{
-                debug_command_callback();
+                notification_callback(host, check_command, error_or_warning.state, error_or_warning.message, result.stdout);
               }
+            }
+
+            if(command.debug_command){
+              exec_command(command.debug_command, 0, 1, config.command_timeout, (debug_result)=>{
+                error_or_warning.message += '\n\nDebug information:\n\n' + 'stdout:\n\n' +  debug_result.stdout + 'stderr:\n\n' + debug_result.stderr + '\n';
+
+                debug_command_callback();
+              });
+            }else{
+              debug_command_callback();
             }
 
             i++;
