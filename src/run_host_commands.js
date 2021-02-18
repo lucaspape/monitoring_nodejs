@@ -40,7 +40,7 @@ module.exports = function (config, host, commands, notification_callback, callba
 
               if(!error_or_warning){
                   //COMMAND IS STATE OK
-                  error_or_warning = { state: 'ok', message: result.stdout};
+                  error_or_warning = { state: 'ok', message: 'stdout:\n\n' result.stdout};
               }
             }
 
