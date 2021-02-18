@@ -1,6 +1,6 @@
 const Influx = require('influx');
 
-module.exports = function(config, notify, host, check_command, state, message, stdout){
+module.exports = function(config, notify, host, check_command, state, message, stdout, callback){
   var influxdb = new Influx.InfluxDB({host: config.influxdb.host, database: config.influxdb.database, username: config.influxdb.username, password: config.influxdb.password,
     schema: [
       {
@@ -37,4 +37,6 @@ module.exports = function(config, notify, host, check_command, state, message, s
     console.log('Could not save to influxdb');
     console.log(err.stack);
   });
+
+  callback();
 }

@@ -28,9 +28,9 @@ module.exports = function (config, host, commands, notification_callback, callba
             var error_or_warning = {};
 
             if(result.error){
-              error_or_warning = { state: 'error', message: result.error};
+              error_or_warning = { state: 'error', message: 'error:\n\n' + result.error + '\nstdout:\n\n' + result.stdout};
             }else if(result.stderr){
-              error_or_warning = { state: 'error', message: result.stderr};
+              error_or_warning = { state: 'error', message: 'stderr:\n\n' + result.stderr + '\nstdout:\n\n' + result.stdout};
             }else{
               error_or_warning = check_for_method(result.error, result.stderr, result.stdout, 'error', command.failure_on, command.failure_value);
 
@@ -166,6 +166,8 @@ function exec_command(command, command_delay, runs, timeout, callback){
 }
 
 function check_for_method(error, stderr, stdout, failure_state, command_method, command_value){
+  stdout = stdout.replace(/\r?\n|\r/g, '');
+
   switch(command_method){
     case 'out_larger_than_value':
       if(stdout > command_value){

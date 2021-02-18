@@ -2,7 +2,7 @@ const nodemailer = require('nodemailer');
 
 const mail_messages = {};
 
-module.exports = function (config, notify, host, check_command, state, message){
+module.exports = function (config, notify, host, check_command, state, message, callback){
   //REOCCURRING
   if(mail_messages[host.name]){
     if(mail_messages[host.name][check_command.unique_name]){
@@ -12,15 +12,18 @@ module.exports = function (config, notify, host, check_command, state, message){
         if(((Date.now() - mail_messages[host.name][check_command.unique_name].lastNotification) >= 60000*config.reoccurring_error_message_time && state == 'error') || ((Date.now() - mail_messages[host.name][check_command.unique_name].lastNotification) >= 60000*config.reoccurring_warning_message_time && state == 'warning') || mail_messages[host.name][check_command.unique_name].lastState !== state){
           mail_messages[host.name][check_command.unique_name].lastNotification = Date.now();
 
-          send_email(config, notify, host, check_command, 'REOCCURRING', state, message, mail_messages[host.name][check_command.unique_name]);
+          send_email(config, notify, host, check_command, 'REOCCURRING', state, message, mail_messages[host.name][check_command.unique_name], ()=>{
+            if(state === 'ok'){
+              mail_messages[host.name][check_command.unique_name] = undefined;
+            }else{
+              mail_messages[host.name][check_command.unique_name].lastState = state;
+            }
 
-          if(state === 'ok'){
-            mail_messages[host.name][check_command.unique_name] = undefined;
-          }else{
-            mail_messages[host.name][check_command.unique_name].lastState = state;
-          }
+            callback();
+          });
         }
 
+        callback();
         return;
     }
   }else{
@@ -31,13 +34,15 @@ module.exports = function (config, notify, host, check_command, state, message){
   if(state !== 'ok'){
     mail_messages[host.name][check_command.unique_name] = {lastState: state, firstOccurring: Date.now(), lastOccurring: Date.now(), lastNotification: Date.now()};
 
-    send_email(config, notify, host, check_command, 'NEW', state, message, mail_messages[host.name][check_command.unique_name]);
+    send_email(config, notify, host, check_command, 'NEW', state, message, mail_messages[host.name][check_command.unique_name], callback);
+  }else{
+    callback();
   }
 }
 
 var transporter = undefined;
 
-function send_email(config, notify, host, check_command, type, state, message, timestamps){
+function send_email(config, notify, host, check_command, type, state, message, timestamps, callback){
   if(!transporter){
     transporter = nodemailer.createTransport(config.mail);
   }
@@ -60,10 +65,12 @@ function send_email(config, notify, host, check_command, type, state, message, t
   }, (message, info)=>{
     if(error){
       console.log(error);
-    }else{
-      console.log('Sent email');
     }
+
+
   });
+
+  callback();
 }
 
 function timeConverter(UNIX_timestamp){

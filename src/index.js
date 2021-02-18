@@ -45,20 +45,21 @@ if(validate_config()){
 
       var loop = function(){
         //SEND OUT NOTIFICATIONS
-        notification_thread.thread();
-        console.log('Sent notifications!');
+        notification_thread.thread(()=>{
+          console.log('Sent notifications!');
 
-        setTimeout(()=>{
-          hosts.forEach(host => {
-            console.log('Checking: ' + host.name);
+          setTimeout(()=>{
+            hosts.forEach(host => {
+              console.log('Checking: ' + host.name);
 
-            run_host_commands(config, host, commands, (host, check_command, state, message, stdout)=>{
-              send_notification(notification_thread, config, host, check_command, state, message, stdout);
-            }, ()=>{
-              loop();
+              run_host_commands(config, host, commands, (host, check_command, state, message, stdout)=>{
+                send_notification(notification_thread, config, host, check_command, state, message, stdout);
+              }, ()=>{
+                loop();
+              });
             });
-          });
-        },1000*config.check_time);
+          },1000*config.check_time);
+        });
       }
 
       loop();
