@@ -72,7 +72,21 @@ module.exports = function (config, host, commands, notification_callback, callba
                 notification_callback(host, check_command, error_or_warning.state, error_or_warning.message + '\n\nDebug information:\n\n' + 'stdout:\n' +  debug_result.stdout + 'stderr:\n' + debug_result.stderr + '\n', result.stdout);
               });
             }else{
-              notification_callback(host, check_command, error_or_warning.state, error_or_warning.message, result.stdout);
+              if(command.multiple_lines_multiple_notifications){
+                const orig_unique_name = check_command.unique_name;
+
+                var lines = result.stdout.split('\n');
+
+                lines.forEach((line, k) => {
+                  check_command.unique_name = orig_unique_name + '-' + k;
+
+                  notification_callback(host, check_command, error_or_warning.state, error_or_warning.message, line);
+
+                  check_command.unique_name = orig_unique_name;
+                });
+              }else{
+                notification_callback(host, check_command, error_or_warning.state, error_or_warning.message, result.stdout);
+              }
             }
 
             i++;

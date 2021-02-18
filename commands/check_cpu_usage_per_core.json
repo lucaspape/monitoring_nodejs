@@ -1,0 +1,7 @@
+{
+   "name":"check_cpu_usage_per_core",
+   "required_vars":[
+   ],
+   "command_base64":"dG9wIC0xYm4xIHwgZ3JlcCAiQ3B1IiB8IHNlZCAicy8uKiwgKlwoWzAtOS5dKlwpJSogaWQuKi9cMS8iIHwgYXdrICd7cHJpbnQgMTAwIC0gJDEiIn0n",
+   "multiple_lines_multiple_notifications": true
+}

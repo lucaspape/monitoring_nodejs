@@ -1,5 +1,5 @@
 {
-   "name":"lucaspape.de",
+   "name":"PC",
    "notify": [
      {
        "how": "email",
@@ -55,6 +55,10 @@
          "vars":{
            "disk": "sda3"
          }
+      },
+      {
+         "command_name":"check_cpu_usage_per_core",
+         "unique_name":"check_cpu_usage_per_core"
       }
    ]
 }
