@@ -2,7 +2,5 @@
    "name":"check_total_cpu_usage",
    "required_vars":[
    ],
-   "command_base64":"dG9wIC1ibjEgfCBncmVwICJDcHUocykiIHwgc2VkICJzLy4qLCAqXChbMC05Ll0qXCklKiBpZC4qL1wxLyIgfCBhd2sgJ3twcmludCAxMDAgLSAkMSIifSc=",
-   "warning_on": "out_larger_than_value",
-   "warning_value": 50
+   "command_base64":"dG9wIC1ibjEgfCBncmVwICJDcHUocykiIHwgc2VkICJzLy4qLCAqXChbMC05Ll0qXCklKiBpZC4qL1wxLyIgfCBhd2sgJ3twcmludCAxMDAgLSAkMSIifSc="
 }
