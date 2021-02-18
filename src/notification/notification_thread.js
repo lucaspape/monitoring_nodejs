@@ -10,6 +10,7 @@ module.exports.thread = function(){
 
     if(current_email){
       send_notification_email(current_email.config, current_email.notify, current_email.host, current_email.check_command, current_email.state, current_email.message);
+      queue.email[index.email] = undefined;
       index.email++;
     }
 
@@ -17,6 +18,7 @@ module.exports.thread = function(){
 
     if(current_influx){
       send_notification_influxdb(current_influx.config, current_influx.notify, current_influx.host, current_influx.check_command, current_influx.state, current_influx.message, current_influx.stdout);
+      queue.influx[index.influx] = undefined;
       index.influx++;
     }
   }
